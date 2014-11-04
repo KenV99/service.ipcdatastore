@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+  <category label="32001">
+    <setting default="127.0.0.1" id="host" label="32002" type="text" />
+    <setting default="3636" id="port" label="32003" type="number" />
+	<setting default="false" id="startserver" label="32004" type="bool" />
+    <setting default="false" id="save_data" label="32005" type="bool" />
+  </category>
+</settings>
