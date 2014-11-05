@@ -1,6 +1,6 @@
 # Kodi Media Center language file
-# Addon Name: ipc-datastore
-# Addon id: servive.ipc-datastore
+# Addon Name: ipcdatastore
+# Addon id: servive.ipcdatastore
 # Addon Provider: KenV99
 msgid ""
 msgstr ""

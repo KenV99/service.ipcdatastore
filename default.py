@@ -16,3 +16,67 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+
+# ************ Following function can be omitted - Used by developer debugger *****************
+def start_debugger():
+    import xbmcvfs
+    import sys
+    if xbmcvfs.exists(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg'):
+        sys.path.append(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg')
+        import pydevd
+        pydevd.settrace('localhost', port=51234, stdoutToServer=True, stderrToServer=True, suspend=False)
+
+start_debugger()
+from ipcserver import IPCServer
+from resources.lib.datastore import DataObjects
+from resources.lib.ipcclientx import IPCClient
+import xbmc
+
+def serverstart():
+    #  Following 2 lines start the IPC Server based on Pyro4 (see IPCServer definition for details)
+    #
+    #  .start() is required since the server is started in a separate thread. This done to prevent
+    #    blocking and allow to call in to stop thread during abort by holding a reference to the server daemon
+    myserver = IPCServer(DataObjects())
+    myserver.start()
+    return myserver
+
+def useclient():
+    #  Now that the server is started, lets open a client connection and put some data in the store
+    #    Obviously the server could be started by one addon and used by two other clients to communicate,
+    #    but for demonstration purposes, lets store some data and then retrieve it in the example
+    #    'script.ipcclient'
+    #
+    #  IPCClient() takes the same optional keyword args as listed above for IPCServer()
+    #  Obviously you need to configure the client identically to the server for them to talk to one another
+    #  In the example IPCServer, the object that is shared is a simple datastore
+    #  It is designed with the following functions:
+    #     For all calls, a pseudo namespace with the addon name is established to help prevent conflict with
+    #     variable names potentially coming from different addons
+    #  put(addon_name as string, variable_name as string, data)
+    #    This is the simple form of put. data can be any type that can be accepted by the above datatype
+    #  get(addon_name as string, variable_name as string) - returns data and timestamp
+    #  delete(addon_name as string, variable_name as string)
+    #     deletes the individual variable and it's value from the datastore
+    #     returns the last data value and timestamp
+    #  clear_all(addon_name) - deletes all of the data associated with the addon_name
+    #     returns all of the data in a keyword dict
+    client = IPCClient()
+    client.set('x', 20)
+    y, iscached = client.get('ipcdatastore', 'x', retiscached=True)
+    y, iscached = client.get('ipcdatastore', 'x', retiscached=True)
+    pass
+
+def main():
+    myserver = serverstart()
+    useclient()
+    while not xbmc.abortRequested:
+        xbmc.sleep(1000)
+    #  If you don't call .stop() an error will turn up in the log when kodi terminates
+    #  The above 'keep alive' loop is not truly necessary, as the server runs as a daemon, however under certain
+    #  circumstances, if kodi exits erroneously, the thread may be left in memory and keep the process alive.
+    #  If this occurs, you may not be able to restart kodi without manually terminating the orphaned process.
+    myserver.stop()
+
+if __name__ == '__main__':
+    main()
