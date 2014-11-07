@@ -11,8 +11,7 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#Add-on messages id=32001 to 32005
-
+#Add-on messages id=32001 to 32016
 msgctxt "#32001"
 msgid "General Settings"
 msgstr ""
@@ -36,3 +35,44 @@ msgstr ""
 msgctxt "#32006"
 msgid "Test client"
 msgstr ""
+
+msgctxt "#32007"
+msgid "Test"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Test successful"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Test Failed"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Server unavailable"
+msgstr ""
+
+msgctxt "#32011"
+msgid "IPC Server Tests"
+msgstr ""
+
+msgctxt "#32012"
+msgid "Testing will delete all data currently stored"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Proceed?"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Server down and could not be started"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Results at"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Tests complete"
+msgstr ""
+

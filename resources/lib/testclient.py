@@ -19,14 +19,17 @@
 
 from ipcclientx import IPCClient
 import xbmcgui
+import xbmcaddon
+__settings__ = xbmcaddon.Addon("service.ipcdatastore")
+__language__ = __settings__.getLocalizedString
 
 client = IPCClient()
 dialog = xbmcgui.Dialog()
 if client.server_available():
     x = client.get('x', 'ipcdatastore')
     if x == 20:
-        dialog.ok('Test','Test successful')
+        dialog.ok(__language__(32007),__language__(32008))
     else:
-        dialog.ok('Test', 'Test failed')
+        dialog.ok(__language__(32007), __language__(32009))
 else:
-    dialog.ok('Test', 'Sever unavailable')
+    dialog.ok(__language__(32007), __language__(32010))

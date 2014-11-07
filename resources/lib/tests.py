@@ -35,6 +35,9 @@ isKodi = 'XBMC' in sys.executable
 if isKodi:
     import xbmc
     import xbmcgui
+    import xbmcaddon
+    __settings__ = xbmcaddon.Addon("service.ipcdatastore")
+    __language__ = __settings__.getLocalizedString
 
 class TestIPCClient(unittest.TestCase):
 
@@ -143,7 +146,7 @@ class TestIPCClient(unittest.TestCase):
 def runtests():
     if isKodi:
         dialog = xbmcgui.Dialog()
-        ret = dialog.yesno('IPC Server tests', 'Testing will delete all data currently stored', 'Proceed?')
+        ret = dialog.yesno(__language__(32011), __language__(32012), __language__(32013))
         if ret == 0:
             return
     client = IPCClient()
@@ -156,7 +159,7 @@ def runtests():
         if not client.server_available():
             if isKodi:
                 dialog = xbmcgui.Dialog()
-                dialog.ok('IPC Client Test', 'Server down and could not be started')
+                dialog.ok(__language__(32011), __language__(32014))
                 return
             else:
                 print 'Server down and could not be started'
@@ -184,8 +187,8 @@ def runtests():
             client.set('x', 20, 'ipcdatastore')
     if isKodi:
         dialog = xbmcgui.Dialog()
-        text = 'Results at: ' + fn
-        dialog.ok('Tests complete', text[0:50], text[50:])
+        text = '{0}: {1}'.format(__language__(32015), fn)
+        dialog.ok(__language__(32016), text[0:50], text[50:])
         xbmc.log('IPC Server test suite run and logged')
 
 
