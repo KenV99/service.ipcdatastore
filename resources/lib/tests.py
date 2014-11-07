@@ -31,6 +31,7 @@ from ipcserver import IPCServer
 import unittest
 import sys
 import time
+import pyro4
 isKodi = 'XBMC' in sys.executable
 if isKodi:
     import xbmc
@@ -131,6 +132,7 @@ class TestIPCClient(unittest.TestCase):
     def test_serverunavailable_error(self):
         tmp = self.client.uri
         self.client.raise_exception = True
+        self.client.num_of_server_retries = 1
         self.client.uri = 'PYRO:kodi-IGA@localhost:9990'
         self.assertIs(self.client.server_available(), False, msg='Failed server_available testing for unavail server')
         ee= None
@@ -144,6 +146,7 @@ class TestIPCClient(unittest.TestCase):
         self.client.uri = tmp
 
 def runtests():
+    pyro4.config.COMMTIMEOUT = 2
     if isKodi:
         dialog = xbmcgui.Dialog()
         ret = dialog.yesno(__language__(32011), __language__(32012), __language__(32013))
@@ -178,7 +181,7 @@ def runtests():
         else:
             logf.write('Using server previously started for tests\n')
         suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
-        unittest.TextTestRunner(stream = logf).run(suite)
+        unittest.TextTestRunner(stream = logf, verbosity=2).run(suite)
         if serverstartedfortest:
             logf.write('Stopping server')
             server.stop()
