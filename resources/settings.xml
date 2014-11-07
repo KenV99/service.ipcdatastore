@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
   <category label="32001">
-    <setting default="127.0.0.1" id="host" label="32002" type="text" />
-    <setting default="3636" id="port" label="32003" type="number" />
+    <setting default="localhost" id="host" label="32002" type="text" />
+    <setting default="9091" id="port" label="32003" type="number" />
 	<setting default="false" id="startserver" label="32004" type="bool" />
-    <setting default="false" id="save_data" label="32005" type="bool" />
+    <setting default="" id="runtests" label="32005" type="action" action="RunScript($CWD/resources/lib/tests.py)" />
+    <setting default="" id="testclient" label="32006" type="action" action="RunScript($CWD/resources/lib/testclient.py)" />
   </category>
 </settings>

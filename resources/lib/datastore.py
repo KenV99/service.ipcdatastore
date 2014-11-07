@@ -18,7 +18,8 @@
 #
 
 import time
-from cPickle import PickleError, PicklingError, dump, load
+from cPickle import dump, load
+import pyro4
 
 IPCERROR_UKNOWN = 0
 IPCERROR_NO_VALUE_FOUND = 1
@@ -58,12 +59,13 @@ class DataObjects(object):
     def __init__(self):
         self.__odict = {}
 
-    def set(self, author, name, value):
+    @pyro4.oneway
+    def set(self, name, value, author):
         dox = DataObjectX(value)
         idx = (str(author), str(name))
         self.__odict[idx] = dox
 
-    def get(self, requestor, author, name, force=False):
+    def get(self, requestor, name, author, force=False):
         idx = (str(author), str(name))
         if idx in self.__odict:
             dox = self.__odict[idx]
@@ -80,7 +82,7 @@ class DataObjects(object):
         else:
             return chr(IPCERROR_NO_VALUE_FOUND)
 
-    def delete(self, author, name):
+    def delete(self, name, author):
         idx = (str(author), str(name))
         if idx in self.__odict:
             dox = self.__odict.pop(idx)
@@ -99,6 +101,7 @@ class DataObjects(object):
                     dl[key[0]] = [key[1]]
         return dl
 
+    @pyro4.oneway
     def clearall(self):
         self.__odict = {}
 
@@ -113,8 +116,9 @@ class DataObjects(object):
             output = open(fn, 'wb')
             dump(save, output, -1)
             output.close()
-        except Exception as e:
-            pass
+            return True
+        except:
+            return False
 
     def restoredata(self, author, fn):
         try:
@@ -122,13 +126,17 @@ class DataObjects(object):
             restore = load(inputf)
             inputf.close()
         except Exception as e:
-            pass
+            return False
         else:
             for key in restore:
-                self.__odict[key] = restore[key]
+                if key[0] == author:
+                    self.__odict[key] = restore[key]
+            return True
 
+    @pyro4.oneway
     def clearcache(self, requestor):
         for key in self.__odict:
             if requestor in self.__odict[key].requestors:
                 del self.__odict[key].requestors[requestor]
+
 

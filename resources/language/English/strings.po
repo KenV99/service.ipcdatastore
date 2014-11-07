@@ -30,5 +30,9 @@ msgid "Start server"
 msgstr ""
 
 msgctxt "#32005"
-msgid "Save data on exit"
+msgid "Run tests (output will be in addon data directory as test.log)"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Test client"
 msgstr ""

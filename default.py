@@ -26,22 +26,39 @@ def start_debugger():
         import pydevd
         pydevd.settrace('localhost', port=51234, stdoutToServer=True, stderrToServer=True, suspend=False)
 
-start_debugger()
-from ipcserver import IPCServer
-from resources.lib.datastore import DataObjects
-from resources.lib.ipcclientx import IPCClient
-import xbmc
+#start_debugger()
 
-def serverstart():
+import sys
+import os
+import xbmc
+import xbmcaddon
+
+# *****************************************************************************************************************
+#  IT IS EXTREMELY IMPORTANT THAT THE DIRECTORY WHERE THE FILE(S) THAT CONTAIN(S) THE CLASS DEFINITION(S) OF THE
+#  OBJECT(S) THAT WILL BE SHARED BY THE SEVER IS (ARE) IN A PATH LOCATION ACCESSIBLE FROM ANYWHERE ANY CLIENT MAY
+#  CONNECT.
+#  Do not use realtive path imports at the time of object instantiation before registering on the server.
+#  The client will not be able to retrieve the return structures and will generate an error.
+sys.path.append(xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')))
+from datastore import DataObjects
+# ******************************************************************************************************************
+
+from ipcserver import IPCServer
+from ipcclientx import IPCClient
+
+myserver = None
+
+def serverstart(host='localhost', port=9091):
+    global myserver
     #  Following 2 lines start the IPC Server based on Pyro4 (see IPCServer definition for details)
     #
     #  .start() is required since the server is started in a separate thread. This done to prevent
-    #    blocking and allow to call in to stop thread during abort by holding a reference to the server daemon
-    myserver = IPCServer(DataObjects())
+    #    blocking and allow us to call in to stop thread during abort by holding a reference to the server daemon
+    #    without this, an error is generated in the kodi logfile
+    myserver = IPCServer(DataObjects(), host=host, port=port)
     myserver.start()
-    return myserver
 
-def useclient():
+def testclient(host='localhost', port=9091):
     #  Now that the server is started, lets open a client connection and put some data in the store
     #    Obviously the server could be started by one addon and used by two other clients to communicate,
     #    but for demonstration purposes, lets store some data and then retrieve it in the example
@@ -61,22 +78,47 @@ def useclient():
     #     returns the last data value and timestamp
     #  clear_all(addon_name) - deletes all of the data associated with the addon_name
     #     returns all of the data in a keyword dict
-    client = IPCClient()
+    client = IPCClient(host=host, port=port)
     client.set('x', 20)
-    y, iscached = client.get('ipcdatastore', 'x', retiscached=True)
-    y, iscached = client.get('ipcdatastore', 'x', retiscached=True)
-    pass
+    y = client.get('x')
+    if y != 20:
+        raise ValueError('IPC Server check failed')
+    else:
+        xbmc.log('IPC Server passed connection test')
+
+class MonitorSettings(xbmc.Monitor):
+    def __init__(self):
+        super(MonitorSettings, self).__init__()
+
+    def onSettingsChanged(self):
+        """
+        Allows the server to start if not already started when the user changes the setting 'Start server' on the
+        settings page to true. Currently will NOT restart server with a change in host or port.
+        """
+        if xbmcaddon.Addon().getSetting('startserver') == 'true' and myserver is None:
+            start()
+
+def start():
+    host = xbmcaddon.Addon().getSetting('host')
+    port = int(xbmcaddon.Addon().getSetting('port'))
+    serverstart(host=host, port=port)
+    xbmc.sleep(2000)
+    testclient(host=host, port=port)
 
 def main():
-    myserver = serverstart()
-    useclient()
+    monitor = MonitorSettings()
+    if xbmcaddon.Addon().getSetting('startserver') == 'true':
+        start()
     while not xbmc.abortRequested:
         xbmc.sleep(1000)
     #  If you don't call .stop() an error will turn up in the log when kodi terminates
     #  The above 'keep alive' loop is not truly necessary, as the server runs as a daemon, however under certain
     #  circumstances, if kodi exits erroneously, the thread may be left in memory and keep the process alive.
     #  If this occurs, you may not be able to restart kodi without manually terminating the orphaned process.
-    myserver.stop()
+    if myserver is not None:
+        myserver.stop()
+    if myserver.running is False:
+        xbmc.log('IPC Server Stopped')
 
 if __name__ == '__main__':
     main()
