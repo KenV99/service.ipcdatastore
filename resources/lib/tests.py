@@ -30,6 +30,8 @@ import ipcclientxerrors
 from ipcserver import IPCServer
 import unittest
 import sys
+import os
+import stat
 import time
 import pyro4
 isKodi = 'XBMC' in sys.executable
@@ -37,6 +39,7 @@ if isKodi:
     import xbmc
     import xbmcgui
     import xbmcaddon
+    import xbmcvfs
     __settings__ = xbmcaddon.Addon("service.ipcdatastore")
     __language__ = __settings__.getLocalizedString
 
@@ -171,7 +174,13 @@ def runtests():
             serverstartedfortest = True
 
     if isKodi:
-        fn = xbmc.translatePath('special://masterprofile') + 'addon_data\\service.ipcdatastore\\test.log'
+        path = xbmc.translatePath('special://masterprofile') + 'addon_data\\service.ipcdatastore\\'
+        if xbmcvfs.exists(path) == 0:
+            xbmcvfs.mkdirs(path)
+        os.chmod(path, 0666)
+        fn = path + 'test.log'
+        if xbmcvfs.exists(fn) != 0:
+            os.chmod(fn, 0666)
     else:
         fn = 'test.log'
     with open(fn, 'a') as logf:

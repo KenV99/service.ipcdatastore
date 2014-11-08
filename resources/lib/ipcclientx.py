@@ -17,6 +17,7 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 import sys
+import os
 from collections import namedtuple
 from cPickle import PickleError, PicklingError
 from ipcclient import IPCClient as IPCClientBase
@@ -367,7 +368,10 @@ class IPCClient(IPCClientBase):
         path = xbmc.translatePath('special://masterprofile') + 'addon_data\\service.ipcdatastore\\'
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
+            os.chmod(path, 0666)
         fn = '{0}{1}-{2}.p'.format(path, self.addonname, author)
+        if xbmcvfs.exists(fn):
+            os.chmod(fn, 0666)
         do, exc = self.__callwrapper(IPCClient.CALL_SAV, author, fn)
         if exc.errno == IPCERROR_SAVEFAILED:
             exc.updatemessage(author, fn)
@@ -390,6 +394,9 @@ class IPCClient(IPCClientBase):
         if author is None:
             author = self.addonname
         path = xbmc.translatePath('special://masterprofile') + 'addon_data\\service.ipcdatastore\\'
+        if xbmcvfs.exists(path) == 0:
+            xbmcvfs.mkdirs(path)
+            os.chmod(path, 0666)
         fn = '{0}{1}-{2}.p'.format(path, self.addonname, author)
         if xbmcvfs.exists(fn) == 1:
             do, exc = self.__callwrapper(IPCClient.CALL_RST, author, fn)
