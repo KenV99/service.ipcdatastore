@@ -174,29 +174,37 @@ def runtests():
             serverstartedfortest = True
 
     if isKodi:
-        path = xbmc.translatePath('special://masterprofile') + 'addon_data\\service.ipcdatastore\\'
+        path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
         os.chmod(path, 0666)
-        fn = path + 'test.log'
+        fn = os.path.join(path, 'test.log')
         if xbmcvfs.exists(fn) != 0:
             os.chmod(fn, 0666)
     else:
         fn = 'test.log'
-    with open(fn, 'a') as logf:
-        logf.write('\n\nTests Started: {0}\n'.format(time.strftime('%x %I:%M %p %Z')))
-        if serverstartedfortest:
-            logf.write('Server started for testing\n')
-        else:
-            logf.write('Using server previously started for tests\n')
-        suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
-        unittest.TextTestRunner(stream = logf, verbosity=2).run(suite)
-        if serverstartedfortest:
-            logf.write('Stopping server\n')
-            server.stop()
-        else:
-            client = IPCClient()
-            client.set('x', 20, 'ipcdatastore')
+    try:
+        with open(fn, 'a') as logf:
+            logf.write('\n\nTests Started: {0}\n'.format(time.strftime('%x %I:%M %p %Z')))
+            if serverstartedfortest:
+                logf.write('Server started for testing\n')
+            else:
+                logf.write('Using server previously started for tests\n')
+            suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
+            unittest.TextTestRunner(stream = logf, verbosity=2).run(suite)
+            if serverstartedfortest:
+                logf.write('Stopping server\n')
+                server.stop()
+            else:
+                client = IPCClient()
+                client.set('x', 20, 'ipcdatastore')
+    except Exception as e:
+        if isKodi:
+            dialog = xbmcgui.Dialog()
+            dialog.ok('Error', e.message)
+            xbmc.log('IPC Datastore Testing Error: {0}'.format(e.message))
+            xbmc.log(sys.exc_info()[3].format_exc())
+        return
     if isKodi:
         dialog = xbmcgui.Dialog()
         text = '{0}: {1}'.format(__language__(32015), fn)
