@@ -2,7 +2,7 @@
 <settings>
   <category label="32001">
     <setting default="localhost" id="host" label="32002" type="text" />
-    <setting default="9091" id="port" label="32003" type="number" />
+    <setting default="9099" id="port" label="32003" type="number" />
 	<setting default="false" id="startserver" label="32004" type="bool" />
     <setting default="" id="runtests" label="32005" type="action" action="RunScript($CWD/resources/lib/tests.py)" />
     <setting default="" id="testclient" label="32006" type="action" action="RunScript($CWD/resources/lib/testclient.py)" />

@@ -61,8 +61,8 @@ class TestIPCClient(unittest.TestCase):
 
     def test_get_ts(self):
         for key in self.data:
-            x = self.client.get(key, ts=True)
-            ts = x[1]
+            x = self.client.get(key, return_tuple=True)
+            ts = x.ts
             self.assertIsInstance(ts, float, msg='Failed get timestamp for: {0}'.format(key))
 
     def test_get_data_list(self):
@@ -79,17 +79,17 @@ class TestIPCClient(unittest.TestCase):
         self.assertIs(x, None, msg='Failed to return None after delete')
 
     def test_cache(self):
-        x = self.client.get('str',retiscached=True)
-        self.assertIs(x[1],False, msg='Failed due to value cached on first pass')
-        x = self.client.get('str', retiscached=True)
-        self.assertIs(x[1], True, msg='Failed to cache value')
+        x = self.client.get('str', return_tuple=True)
+        self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
+        x = self.client.get('str', return_tuple=True)
+        self.assertIs(x.cached, True, msg='Failed to cache value')
 
     def test_clearcache(self):
-        x = self.client.get('int', retiscached=True)
-        self.assertIs(x[1],False, msg='Failed due to value cached on first pass')
+        x = self.client.get('int', return_tuple=True)
+        self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
         self.client.clearcache()
-        x = self.client.get('int', retiscached=True)
-        self.assertIs(x[1], False, msg='Failed to clear cache')
+        x = self.client.get('int', return_tuple=True)
+        self.assertIs(x.cached, False, msg='Failed to clear cache')
 
     def test_clearall(self):
         dl = self.client.get_data_list()[self.name]
@@ -177,13 +177,13 @@ def runtests():
     with open(fn, 'a') as logf:
         logf.write('\n\nTests Started: {0}\n'.format(time.strftime('%x %I:%M %p %Z')))
         if serverstartedfortest:
-            logf.write('Server started for testing')
+            logf.write('Server started for testing\n')
         else:
             logf.write('Using server previously started for tests\n')
         suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
         unittest.TextTestRunner(stream = logf, verbosity=2).run(suite)
         if serverstartedfortest:
-            logf.write('Stopping server')
+            logf.write('Stopping server\n')
             server.stop()
         else:
             client = IPCClient()

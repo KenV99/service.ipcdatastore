@@ -48,7 +48,7 @@ from ipcclientx import IPCClient
 
 myserver = None
 
-def serverstart(host='localhost', port=9091):
+def serverstart(host='localhost', port=9099):
     global myserver
     #  Following 2 lines start the IPC Server based on Pyro4 (see IPCServer definition for details)
     #
@@ -58,7 +58,7 @@ def serverstart(host='localhost', port=9091):
     myserver = IPCServer(DataObjects(), host=host, port=port)
     myserver.start()
 
-def testclient(host='localhost', port=9091):
+def testclient(host='localhost', port=9099):
     #  Now that the server is started, lets open a client connection and put some data in the store
     #    Obviously the server could be started by one addon and used by two other clients to communicate,
     #    but for demonstration purposes, lets store some data and then retrieve it in the example
