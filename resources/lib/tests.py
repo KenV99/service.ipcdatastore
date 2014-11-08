@@ -31,10 +31,10 @@ from ipcserver import IPCServer
 import unittest
 import sys
 import os
-import stat
 import time
 import pyro4
-isKodi = 'XBMC' in sys.executable
+#isKodi = 'XBMC' in sys.executable
+isKodi = True
 if isKodi:
     import xbmc
     import xbmcgui
