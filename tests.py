@@ -17,24 +17,31 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-try:
-    from resources.lib.ipcclientx import IPCClient
-except:
-    from ipcclientx import IPCClient
-try:
-    from resources.lib.datastore import DataObjects
-except:
-    from datastore import DataObjects
-
-import ipcclientxerrors
-from ipcserver import IPCServer
-import unittest
 import sys
 import os
 import time
+import unittest
+
+try:
+    from ipcclientx import IPCClient
+except:
+    from resources.lib.ipcclientx import IPCClient
+try:
+    from datastore import DataObjects
+except:
+    from resources.lib.datastore import DataObjects
+try:
+    import ipcclientxerrors
+except:
+    import resources.lib.ipcclientxerrors as ipcclientxerrors
+
+from ipcserver import IPCServer
 import pyro4
-#isKodi = 'XBMC' in sys.executable
-isKodi = True
+
+if 'win' in sys.platform:
+    isKodi = 'XBMC' in sys.executable
+else:
+    isKodi = True
 if isKodi:
     import xbmc
     import xbmcgui
@@ -49,7 +56,7 @@ class TestIPCClient(unittest.TestCase):
         self.data = {'int': 5, 'float':1.314, 'str':'abcdef', 'tuple':(7, 'hello'), 'list':[0, 8.1, 'goodbye'],
                      'dict':{'name':'Ned Stark', 'deceased':True}}
         for key in self.data:
-            client.set(key, self.data[key])
+            client.set(key, self.data[key], author=self.name)
 
     def setUp(self):
         self.client = IPCClient()
@@ -59,12 +66,12 @@ class TestIPCClient(unittest.TestCase):
 
     def test_get(self):
         for key in self.data:
-            x = self.client.get(key)
+            x = self.client.get(key, author=self.name, requestor='tests')
             self.assertEqual(x, self.data[key], msg='Failed get for: {0}'.format(key))
 
     def test_get_ts(self):
         for key in self.data:
-            x = self.client.get(key, return_tuple=True)
+            x = self.client.get(key, author=self.name, requestor='tests', return_tuple=True)
             ts = x.ts
             self.assertIsInstance(ts, float, msg='Failed get timestamp for: {0}'.format(key))
 
@@ -82,16 +89,16 @@ class TestIPCClient(unittest.TestCase):
         self.assertIs(x, None, msg='Failed to return None after delete')
 
     def test_cache(self):
-        x = self.client.get('str', return_tuple=True)
+        x = self.client.get('str', author=self.name, requestor='tests', return_tuple=True)
         self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
-        x = self.client.get('str', return_tuple=True)
+        x = self.client.get('str', author=self.name, requestor='tests', return_tuple=True)
         self.assertIs(x.cached, True, msg='Failed to cache value')
 
     def test_clearcache(self):
-        x = self.client.get('int', return_tuple=True)
+        x = self.client.get('int', author=self.name, requestor='tests', return_tuple=True)
         self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
         self.client.clearcache()
-        x = self.client.get('int', return_tuple=True)
+        x = self.client.get('int', author = self.name, requestor='tests', return_tuple=True)
         self.assertIs(x.cached, False, msg='Failed to clear cache')
 
     def test_clearall(self):
@@ -174,7 +181,7 @@ def runtests():
             serverstartedfortest = True
 
     if isKodi:
-        path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
+        path = xbmc.translatePath(r'special://masterprofile/addon_data/service.ipcdatastore/')
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
         os.chmod(path, 0666)
@@ -187,7 +194,7 @@ def runtests():
         with open(fn, 'a') as logf:
             logf.write('\n\nTests Started: {0}\n'.format(time.strftime('%x %I:%M %p %Z')))
             if serverstartedfortest:
-                logf.write('Server started for testing\n')
+                logf.write('Server started for testing\n\n')
             else:
                 logf.write('Using server previously started for tests\n')
             suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)

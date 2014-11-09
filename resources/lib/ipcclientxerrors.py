@@ -46,7 +46,8 @@ class ObjectNotSerializableError(IPCClientError):
         self.message = 'The object of type {0} provided failed serialization'.format(str(type(obj)))
 
 class UseCachedCopyError(IPCClientError):
-    pass
+    def __init__(self):
+        self.message = 'Using cached copy'
 
 class SaveFailedError(IPCClientError):
     def __init__(self):
@@ -64,7 +65,7 @@ class RestoreFailedError(IPCClientError):
 
 class UnknownError(IPCClientError):
     def __init__(self, msg, tb):
-        self.message = msg
+        self.message = msg.message
         self.tb = tb
 
 class NoError(IPCClientError):

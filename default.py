@@ -17,17 +17,6 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-# ************ Following function can be omitted - Used by developer debugger *****************
-def start_debugger():
-    import xbmcvfs
-    import sys
-    if xbmcvfs.exists(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg'):
-        sys.path.append(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg')
-        import pydevd
-        pydevd.settrace('localhost', port=51234, stdoutToServer=True, stderrToServer=True, suspend=False)
-
-#start_debugger()
-
 import sys
 import os
 import xbmc
@@ -39,7 +28,7 @@ import xbmcaddon
 #  CONNECT.
 #  Do not use realtive path imports at the time of object instantiation before registering on the server.
 #  The client will not be able to retrieve the return structures and will generate an error.
-sys.path.append(xbmc.translatePath(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')))
+sys.path.append(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib'))
 from datastore import DataObjects
 # ******************************************************************************************************************
 

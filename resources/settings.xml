@@ -4,7 +4,7 @@
     <setting default="localhost" id="host" label="32002" type="text" />
     <setting default="9099" id="port" label="32003" type="number" />
 	<setting default="false" id="startserver" label="32004" type="bool" />
-    <setting default="" id="runtests" label="32005" type="action" action="RunScript(special://home/addons/service.ipcdatastore/resources/lib/tests.py)" />
-    <setting default="" id="testclient" label="32006" type="action" action="RunScript(special://home/addons/service.ipcdatastore/resources/lib/testclient.py)" />
+    <setting default="" id="runtests" label="32005" type="action" action="RunScript(special://home/addons/service.ipcdatastore/tests.py)" />
+    <setting default="" id="testclient" label="32006" type="action" action="RunScript(special://home/addons/service.ipcdatastore/testclient.py)" />
   </category>
 </settings>

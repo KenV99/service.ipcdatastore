@@ -20,24 +20,34 @@ import sys
 import os
 from collections import namedtuple
 from cPickle import PickleError, PicklingError
-from ipcclient import IPCClient as IPCClientBase
+
 import pyro4
 import pyro4.errors
 import pyro4.util
+from ipcclient import IPCClient as IPCClientBase
 try:
     import ipcclientxerrors
 except:
     import resources.lib.ipcclientxerrors as ipcclientxerrors
-isKodi = 'XBMC' in sys.executable
+if 'win' in sys.platform:
+    isKodi = 'XBMC' in sys.executable
+else:
+    isKodi = True
 if isKodi:
     import xbmc
     import xbmcaddon
     import xbmcvfs
+    dspath = os.path.join(xbmcaddon.Addon('service.ipcdatastore').getAddonInfo('path'), 'resources', 'lib')
+    sys.path.append(dspath)
 else:
-    from xbmcdummy import xbmc
-    from xbmcdummy import xbmcaddon
-    from xbmcdummy import xbmcvfs
+    try:
+        from xbmcdummy import xbmc, xbmcaddon, xbmcvfs
+    except:
+        from resources.lib.xbmcdummy import xbmc, xbmcaddon, xbmcvfs
 
+DEBUG = False
+if DEBUG:
+    from datastore import DataObjects
 
 IPCERROR_UKNOWN = 0
 IPCERROR_NO_VALUE_FOUND = 1
@@ -77,6 +87,9 @@ class IPCClient(IPCClientBase):
         self.raise_exception = False
         self.num_of_server_retries = 5
         self.ReturnData = namedtuple('Data', ['value', 'ts', 'cached'])
+        if DEBUG:
+            self.dos=DataObjects()
+            self.dos.set('x', 20, 'ipcdatastore')
 
     def getexposedobj(self):
         return pyro4.Proxy(self.uri)
@@ -96,9 +109,13 @@ class IPCClient(IPCClientBase):
         err = -1
         do = None
         exc = None
+
         while retries > 0:
             try:
-                dos = pyro4.Proxy(self.uri)
+                if DEBUG:
+                    dos = self.dos
+                else:
+                    dos = pyro4.Proxy(self.uri)
                 if calltype == IPCClient.CALL_SET:
                     dos.set(*args)
                 elif calltype == IPCClient.CALL_GET:
@@ -117,7 +134,8 @@ class IPCClient(IPCClientBase):
                     dos.clearcache(*args)
             except pyro4.errors.ConnectionClosedError as e:
                 retries -=1
-                dos._pyroReconnect()
+                if not DEBUG:
+                    dos._pyroReconnect()
                 err = IPCERROR_CONNECTION_CLOSED
                 exc = ipcclientxerrors.ServerReconnectFailedError
             except pyro4.errors.CommunicationError as e:
@@ -132,7 +150,8 @@ class IPCClient(IPCClientBase):
                 break
             else:
                 err = -1
-                dos._pyroRelease()
+                if not DEBUG:
+                    dos._pyroRelease()
                 break
         #  Client side errors
         if err == IPCERROR_SERVER_TIMEOUT:
@@ -215,12 +234,11 @@ class IPCClient(IPCClientBase):
             ret = value
         return ret
 
-    def __get(self, name, author, force=False):
-        requestor = self.addonname
+    def __get(self, name, author, requestor, force=False):
         do,exc = self.__callwrapper(IPCClient.CALL_GET, requestor, name, author, force)
         return do, exc
 
-    def get(self, name, author=None, return_tuple=False):
+    def get(self, name, author=None, requestor=None, return_tuple=False):
         """
         Retrieves data from the server based on author and variable name, optionally includes time stamp (float) and/or
         a bool representing whether or not the item came from the local cache.
@@ -243,14 +261,16 @@ class IPCClient(IPCClientBase):
         """
         if author is None:
             author = self.addonname
+        if requestor is None:
+            requestor = self.addonname
         idx = (author, name)
-        do, exc = self.__get(name, author)
+        do, exc = self.__get(name, author, requestor)
         if exc.errno == IPCERROR_USE_CACHED_COPY:
             if idx in self.cache:
                 do = self.cache[idx]
                 return self.__setreturn(do, cached=True, return_tuple=return_tuple)
             else:  #SHOULD BE IN CACHE, SO FORCE SERVER TO PROVIDE
-                do, exc = self.__get(name, author, force=True)
+                do, exc = self.__get(name, author, requestor, force=True)
                 if exc.errno == IPCERROR_NO_VALUE_FOUND:
                     exc.varname = name
                     exc.author = author

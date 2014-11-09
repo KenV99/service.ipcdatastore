@@ -17,19 +17,20 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-from ipcclientx import IPCClient
-import xbmcgui
-import xbmcaddon
-__settings__ = xbmcaddon.Addon("service.ipcdatastore")
-__language__ = __settings__.getLocalizedString
 
-client = IPCClient()
-dialog = xbmcgui.Dialog()
-if client.server_available():
-    x = client.get('x', 'ipcdatastore')
-    if x == 20:
-        dialog.ok(__language__(32007),__language__(32008))
+def start_debugger(port=51234):
+    import sys
+    if 'win' in sys.platform:
+        isKodi = 'XBMC' in sys.executable
     else:
-        dialog.ok(__language__(32007), __language__(32009))
-else:
-    dialog.ok(__language__(32007), __language__(32010))
+        isKodi = True
+    if isKodi:
+        import xbmcvfs
+        chkfileexists = xbmcvfs.exists
+    else:
+        import os
+        chkfileexists = os.path.isfile
+    if chkfileexists(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg'):
+        sys.path.append(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg')
+        import pydevd
+        pydevd.settrace('localhost', port=port, stdoutToServer=True, stderrToServer=True, suspend=False)
