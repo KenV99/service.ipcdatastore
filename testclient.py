@@ -27,12 +27,14 @@ try:
 except:
     from resources.lib.ipcclientx import IPCClient
 
+import xbmc
 import xbmcgui
 import xbmcaddon
 __settings__ = xbmcaddon.Addon("service.ipcdatastore")
 __language__ = __settings__.getLocalizedString
 
 client = IPCClient()
+xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
 dialog = xbmcgui.Dialog()
 if client.server_available():
     x = client.get('x', author='ipcdatastore', requestor='testclient')

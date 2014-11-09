@@ -171,6 +171,7 @@ def runtests():
         if ret == 0:
             return
     client = IPCClient()
+    xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
     if client.server_available():
         serverstartedfortest = False
     else:
@@ -217,14 +218,14 @@ def runtests():
         if isKodi:
             dialog = xbmcgui.Dialog()
             dialog.ok('Error', e.message)
-            xbmc.log('IPC Datastore Testing Error: {0}'.format(e.message))
+            xbmc.log('*&*&*&*& ipcdatastore: Testing Error: {0}'.format(e.message))
             xbmc.log(sys.exc_info()[3].format_exc())
         return
     if isKodi:
         dialog = xbmcgui.Dialog()
         text = '{0}: {1}'.format(__language__(32015), fn)
         dialog.ok(__language__(32016), text[0:50], text[50:])
-        xbmc.log('IPC Server test suite run and logged')
+        xbmc.log('*&*&*&*& ipcdatastore: Test suite run and logged')
 
 
 if __name__ == '__main__':

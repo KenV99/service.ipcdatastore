@@ -45,8 +45,7 @@ def serverstart(host='localhost', port=9099):
     #    blocking and allow us to call in to stop thread during abort by holding a reference to the server daemon
     #    without this, an error is generated in the kodi logfile
     myserver = IPCServer(DataObjects(), host=host, port=port)
-    myserver.start()
-
+    xbmc.log('*&*&*&*& ipcdatastore: Attempting to start server on {0}:{1}'.format(host, port))
 def testclient(host='localhost', port=9099):
     #  Now that the server is started, lets open a client connection and put some data in the store
     #    Obviously the server could be started by one addon and used by two other clients to communicate,
@@ -68,12 +67,13 @@ def testclient(host='localhost', port=9099):
     #  clear_all(addon_name) - deletes all of the data associated with the addon_name
     #     returns all of the data in a keyword dict
     client = IPCClient(host=host, port=port)
+    xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
     client.set('x', 20)
     y = client.get('x')
     if y != 20:
-        raise ValueError('IPC Server check failed')
+        raise ValueError('*&*&*&*& ipcdatastore: IPC Server check failed')
     else:
-        xbmc.log('IPC Server passed connection test')
+        xbmc.log('*&*&*&*& ipcdatastore: IPC Server passed connection test')
 
 class MonitorSettings(xbmc.Monitor):
     def __init__(self):
@@ -107,7 +107,7 @@ def main():
     if myserver is not None:
         myserver.stop()
     if myserver.running is False:
-        xbmc.log('IPC Server Stopped')
+        xbmc.log('*&*&*&*& ipcdatastore: IPC Server Stopped')
 
 if __name__ == '__main__':
     main()
