@@ -50,23 +50,6 @@ if isKodi:
     __settings__ = xbmcaddon.Addon("service.ipcdatastore")
     __language__ = __settings__.getLocalizedString
 
-def platform():
-    if isKodi:
-        if xbmc.getCondVisibility('system.platform.android'):
-            return 'android'
-        elif xbmc.getCondVisibility('system.platform.linux'):
-            return 'linux'
-        elif xbmc.getCondVisibility('system.platform.windows'):
-            return 'windows'
-        elif xbmc.getCondVisibility('system.platform.osx'):
-            return 'osx'
-        elif xbmc.getCondVisibility('system.platform.atv2'):
-            return 'atv2'
-        elif xbmc.getCondVisibility('system.platform.ios'):
-            return 'ios'
-    else:
-        return sys.platform
-
 class TestIPCClient(unittest.TestCase):
 
     def senddata(self, client):
