@@ -28,8 +28,9 @@ class xbmc(object):
 
     @staticmethod
     def translatePath(path):
-        if path == 'special://masterprofile':
-            return r'C:\Users\Ken User\AppData\Roaming\XBMC\userdata'
+        ret = path.replace(r'special://masterprofile', r'C:\Users\Ken User\AppData\Roaming\XBMC\userdata')
+        ret = ret.replace('/', '\\')
+        return ret
 
 class AddOn(object):
 

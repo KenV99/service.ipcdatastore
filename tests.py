@@ -50,6 +50,23 @@ if isKodi:
     __settings__ = xbmcaddon.Addon("service.ipcdatastore")
     __language__ = __settings__.getLocalizedString
 
+def platform():
+    if isKodi:
+        if xbmc.getCondVisibility('system.platform.android'):
+            return 'android'
+        elif xbmc.getCondVisibility('system.platform.linux'):
+            return 'linux'
+        elif xbmc.getCondVisibility('system.platform.windows'):
+            return 'windows'
+        elif xbmc.getCondVisibility('system.platform.osx'):
+            return 'osx'
+        elif xbmc.getCondVisibility('system.platform.atv2'):
+            return 'atv2'
+        elif xbmc.getCondVisibility('system.platform.ios'):
+            return 'ios'
+    else:
+        return sys.platform
+
 class TestIPCClient(unittest.TestCase):
 
     def senddata(self, client):
@@ -73,33 +90,41 @@ class TestIPCClient(unittest.TestCase):
         for key in self.data:
             x = self.client.get(key, author=self.name, requestor='tests', return_tuple=True)
             ts = x.ts
-            self.assertIsInstance(ts, float, msg='Failed get timestamp for: {0}'.format(key))
+            if hasattr(self, 'assertIsInstance'):
+                self.assertIsInstance(ts, float, msg='Failed get timestamp for: {0}'.format(key))
+            else:
+                if isinstance(ts, float):
+                    test = -1
+                else:
+                    test = 0
+                self.assertEqual(test, -1, msg='Failed get timestamp for: {0}'.format(key))
 
     def test_get_data_list(self):
         dl = self.client.get_data_list()[self.name]
-        self.assertIsInstance(dl, list, msg='Failed to get list for get_data_list')
         if isinstance(dl, list):
             k = self.data.keys()
-            self.assertEqual(dl.sort(), k.sort())
+            self.assertEqual(dl.sort(), k.sort(), msg='Failed: data lists not equivalent')
+        else:
+            self.assertEqual(1, 2, 'Failed: data list returned in wrong format')
 
     def test_delete(self):
         x = self.client.delete('tuple')
         self.assertEqual(x, self.data['tuple'], msg='Failed to return data on delete')
         x = self.client.get('tuple')
-        self.assertIs(x, None, msg='Failed to return None after delete')
+        self.assertEqual(x, None, msg='Failed to return None after delete')
 
     def test_cache(self):
         x = self.client.get('str', author=self.name, requestor='tests', return_tuple=True)
-        self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
+        self.assertEqual(x.cached, False, msg='Failed due to value cached on first pass')
         x = self.client.get('str', author=self.name, requestor='tests', return_tuple=True)
-        self.assertIs(x.cached, True, msg='Failed to cache value')
+        self.assertEqual(x.cached, True, msg='Failed to cache value')
 
     def test_clearcache(self):
         x = self.client.get('int', author=self.name, requestor='tests', return_tuple=True)
-        self.assertIs(x.cached, False, msg='Failed due to value cached on first pass')
+        self.assertEqual(x.cached, False, msg='Failed due to value cached on first pass')
         self.client.clearcache()
         x = self.client.get('int', author = self.name, requestor='tests', return_tuple=True)
-        self.assertIs(x.cached, False, msg='Failed to clear cache')
+        self.assertEqual(x.cached, False, msg='Failed to clear cache')
 
     def test_clearall(self):
         dl = self.client.get_data_list()[self.name]
@@ -144,7 +169,7 @@ class TestIPCClient(unittest.TestCase):
         self.client.raise_exception = True
         self.client.num_of_server_retries = 1
         self.client.uri = 'PYRO:kodi-IGA@localhost:9990'
-        self.assertIs(self.client.server_available(), False, msg='Failed server_available testing for unavail server')
+        self.assertEqual(self.client.server_available(), False, msg='Failed server_available testing for unavail server')
         ee= None
         try:
             self.client.get('x')
