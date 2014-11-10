@@ -16,27 +16,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+import inspect
+import os
 
-
-try:
-    from ipcclientx import IPCClient
-except:
-    from resources.lib.ipcclientx import IPCClient
-
-import xbmc
-import xbmcgui
-import xbmcaddon
-__settings__ = xbmcaddon.Addon("service.ipcdatastore")
-__language__ = __settings__.getLocalizedString
-
-client = IPCClient()
-xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
-dialog = xbmcgui.Dialog()
-if client.server_available():
-    x = client.get('x', author='ipcdatastore', requestor='testclient')
-    if x == 20:
-        dialog.ok(__language__(32007),__language__(32008))
-    else:
-        dialog.ok(__language__(32007), __language__(32009))
-else:
-    dialog.ok(__language__(32007), __language__(32010))
+def caller_name():
+    stack = inspect.stack()
+    caller = stack[len(stack)-1][1]
+    ret =  os.path.basename(caller)
+    return ret

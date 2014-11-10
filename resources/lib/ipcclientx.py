@@ -25,10 +25,13 @@ import pyro4
 import pyro4.errors
 import pyro4.util
 from ipcclient import IPCClient as IPCClientBase
+
 try:
     import ipcclientxerrors
 except:
     import resources.lib.ipcclientxerrors as ipcclientxerrors
+from caller_name import caller_name
+__callingmodule__ = caller_name()
 if 'win' in sys.platform:
     isKodi = 'XBMC' in sys.executable
 else:
@@ -37,7 +40,10 @@ if isKodi:
     import xbmc
     import xbmcaddon
     import xbmcvfs
-    dspath = os.path.join(xbmcaddon.Addon('service.ipcdatastore').getAddonInfo('path'), 'resources', 'lib')
+    if __callingmodule__ != 'default.py':
+        dspath = os.path.join(xbmcaddon.Addon('service.ipcdatastore').getAddonInfo('path'), 'resources', 'lib')
+    else:
+        dspath = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')
     sys.path.append(dspath)
 else:
     try:
@@ -79,9 +85,9 @@ class IPCClient(IPCClientBase):
         """
         super(IPCClient, self).__init__(name, host, port, datatype)
         self.cache = {}
-        try:
+        if __callingmodule__ == 'default.py':
             addonname = xbmcaddon.Addon().getAddonInfo('name')
-        except:
+        else:
             addonname = 'ipcdatastore'
         self.addonname = addonname.replace('.', '-')
         self.raise_exception = False
@@ -103,7 +109,8 @@ class IPCClient(IPCClientBase):
     def __callwrapper(self, calltype, *args):
         # Why was this implemented this way? Why didn't I use a factory with 'getattr'?
         # Because the dataobject 'dos' is a remote object, using 'getattr' causes another cycle of requesting the
-        # attributes from the serverside and then receiving them. This condenses the interaction down to one
+        # attributes from the serverside and then receiving them. Although this is not costly from a performance side,
+        # that getattr call also needs to be wrapped with exception handling. This condenses the interaction down to one
         # call, sometimes being a one-way call. I know. It's ugly.
         retries = self.num_of_server_retries
         err = -1

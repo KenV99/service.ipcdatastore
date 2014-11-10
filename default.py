@@ -21,6 +21,8 @@ import sys
 import os
 import xbmc
 import xbmcaddon
+#from resources.lib.debugger import start_debugger
+#start_debugger()
 
 # *****************************************************************************************************************
 #  IT IS EXTREMELY IMPORTANT THAT THE DIRECTORY WHERE THE FILE(S) THAT CONTAIN(S) THE CLASS DEFINITION(S) OF THE
@@ -46,6 +48,8 @@ def serverstart(host='localhost', port=9099):
     #    without this, an error is generated in the kodi logfile
     myserver = IPCServer(DataObjects(), host=host, port=port)
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to start server on {0}:{1}'.format(host, port))
+    myserver.start()
+
 def testclient(host='localhost', port=9099):
     #  Now that the server is started, lets open a client connection and put some data in the store
     #    Obviously the server could be started by one addon and used by two other clients to communicate,

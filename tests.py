@@ -165,13 +165,14 @@ class TestIPCClient(unittest.TestCase):
 
 def runtests():
     pyro4.config.COMMTIMEOUT = 2
+    client = IPCClient()
     if isKodi:
         dialog = xbmcgui.Dialog()
         ret = dialog.yesno(__language__(32011), __language__(32012), __language__(32013))
         if ret == 0:
             return
-    client = IPCClient()
-    xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
+        else:
+            xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
     if client.server_available():
         serverstartedfortest = False
     else:

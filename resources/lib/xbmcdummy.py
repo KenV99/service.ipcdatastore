@@ -34,16 +34,19 @@ class xbmc(object):
 
 class AddOn(object):
 
-    @staticmethod
-    def getAddonInfo(myid):
+    def __init__(self, name=''):
+        if name == '':
+            name = 'ipcdatastore'
+        self.name = name
+
+    def getAddonInfo(self, myid):
         if myid == 'name':
-            return 'ipcdatastore'
+            return self.name
 
 class xbmcaddon(object):
-
     @staticmethod
-    def Addon():
-        return AddOn()
+    def Addon(name=''):
+        return AddOn(name)
 
 class xbmcvfs(object):
 
