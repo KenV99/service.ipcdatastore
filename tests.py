@@ -194,10 +194,10 @@ def runtests():
         path = xbmc.translatePath(r'special://masterprofile/addon_data/service.ipcdatastore/')
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
-        os.chmod(path, 0666)
+        os.chmod(path, 0777)
         fn = os.path.join(path, 'test.log')
         if xbmcvfs.exists(fn) != 0:
-            os.chmod(fn, 0666)
+            os.chmod(fn, 0777)
     else:
         fn = 'test.log'
     try:
@@ -218,9 +218,13 @@ def runtests():
     except Exception as e:
         if isKodi:
             dialog = xbmcgui.Dialog()
-            dialog.ok('Error', e.message)
-            xbmc.log('*&*&*&*& ipcdatastore: Testing Error: {0}'.format(e.message))
-            xbmc.log(sys.exc_info()[3].format_exc())
+            if e.message == '':
+                msg = str(sys.exc_info()[1])
+            else:
+                msg = e.message
+            dialog.ok('Error', msg)
+            xbmc.log('*&*&*&*& ipcdatastore: Testing Error: {0}'.format(msg))
+            xbmc.log(sys.exc_info()[2].format_exc())
         return
     if isKodi:
         dialog = xbmcgui.Dialog()
