@@ -21,7 +21,20 @@ import sys
 import os
 import time
 import unittest
-
+if 'win' in sys.platform:
+    isKodi = 'XBMC' in sys.executable
+else:
+    isKodi = True
+if isKodi:
+    import xbmc
+    import xbmcgui
+    import xbmcaddon
+    import xbmcvfs
+    __settings__ = xbmcaddon.Addon("service.ipcdatastore")
+    __language__ = __settings__.getLocalizedString
+    path = xbmc.translatePath('special://home/addons/script.module.ipc/lib')
+    xbmc.log('@@@ Adding to path: {0}'.format(path))
+    sys.path.insert(0, path)
 try:
     from ipcclientx import IPCClient
 except:
@@ -38,17 +51,7 @@ except:
 from ipc.ipcserver import IPCServer
 import pyro4
 
-if 'win' in sys.platform:
-    isKodi = 'XBMC' in sys.executable
-else:
-    isKodi = True
-if isKodi:
-    import xbmc
-    import xbmcgui
-    import xbmcaddon
-    import xbmcvfs
-    __settings__ = xbmcaddon.Addon("service.ipcdatastore")
-    __language__ = __settings__.getLocalizedString
+
 
 class TestIPCClient(unittest.TestCase):
 

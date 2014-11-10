@@ -17,15 +17,20 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
-
+import os
+import sys
+import xbmc
+import xbmcgui
+import xbmcaddon
+path = xbmc.translatePath('special://home/addons/script.module.ipc/lib')
+xbmc.log('@@@ Adding to path: {0}'.format(path))
+sys.path.insert(0, path)
 try:
     from ipcclientx import IPCClient
 except:
     from resources.lib.ipcclientx import IPCClient
 
-import xbmc
-import xbmcgui
-import xbmcaddon
+
 __settings__ = xbmcaddon.Addon("service.ipcdatastore")
 __language__ = __settings__.getLocalizedString
 
