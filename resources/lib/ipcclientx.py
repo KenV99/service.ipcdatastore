@@ -24,7 +24,8 @@ from cPickle import PickleError, PicklingError
 import pyro4
 import pyro4.errors
 import pyro4.util
-from ipcclient import IPCClient as IPCClientBase
+from ipc.ipcclient import IPCClient as IPCClientBase
+
 
 try:
     import ipcclientxerrors

@@ -35,7 +35,7 @@ try:
 except:
     import resources.lib.ipcclientxerrors as ipcclientxerrors
 
-from ipcserver import IPCServer
+from ipc.ipcserver import IPCServer
 import pyro4
 
 if 'win' in sys.platform:

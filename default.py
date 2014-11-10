@@ -19,8 +19,10 @@
 
 import sys
 import os
+
 import xbmc
 import xbmcaddon
+
 #from resources.lib.debugger import start_debugger
 #start_debugger()
 
@@ -34,8 +36,8 @@ sys.path.append(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources'
 from datastore import DataObjects
 # ******************************************************************************************************************
 
-from ipcserver import IPCServer
-from ipcclientx import IPCClient
+from ipc.ipcserver import IPCServer
+from resources.lib.ipcclientx import IPCClient
 
 myserver = None
 
