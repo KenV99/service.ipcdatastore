@@ -19,6 +19,7 @@
 
 import sys
 import os
+import stat
 import time
 import unittest
 if 'win' in sys.platform:
@@ -161,6 +162,8 @@ class TestIPCClient(unittest.TestCase):
         self.client.uri = tmp
 
 def runtests():
+    default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
+    default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
     pyro4.config.COMMTIMEOUT = 2
     client = IPCClient()
     if isKodi:
@@ -191,10 +194,10 @@ def runtests():
         path = xbmc.translatePath(r'special://masterprofile/addon_data/service.ipcdatastore/')
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
-        os.chmod(path, 0777)
+        os.chmod(path, default_dir_mod)
         fn = os.path.join(path, 'test.log')
         if xbmcvfs.exists(fn) != 0:
-            os.chmod(fn, 0777)
+            os.chmod(fn, default_file_mod)
     else:
         fn = 'test.log'
     try:
@@ -215,15 +218,21 @@ def runtests():
     except Exception as e:
         if isKodi:
             dialog = xbmcgui.Dialog()
-            if e.message == '':
-                msg = str(sys.exc_info()[1])
+            if hasattr(e, 'message'):
+                if e.message != '':
+                    msg = e.message
+                else:
+                    msg = str(sys.exc_info()[1])
             else:
-                msg = e.message
+                msg = str(sys.exc_info()[1])
             dialog.ok('Error', msg)
             xbmc.log('*&*&*&*& ipcdatastore: Testing Error: {0}'.format(msg))
-            xbmc.log(sys.exc_info()[2].format_exc())
+            if hasattr(sys.exc_info()[2], 'format_exc'):
+                xbmc.log(sys.exc_info()[2].format_exc())
         return
     if isKodi:
+        os.chmod(path, default_dir_mod)
+        os.chmod(fn, default_file_mod)
         dialog = xbmcgui.Dialog()
         text = '{0}: {1}'.format(__language__(32015), fn)
         dialog.ok(__language__(32016), text[0:50], text[50:])

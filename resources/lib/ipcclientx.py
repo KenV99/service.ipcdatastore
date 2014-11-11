@@ -398,13 +398,8 @@ class IPCClient(IPCClientBase):
         if author is None:
             author = self.addonname
         path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore')
-        if xbmcvfs.exists(path) == 0:
-            xbmcvfs.mkdirs(path)
-            os.chmod(path, 0666)
         fn = '{0}-{1}.p'.format(self.addonname, author)
         fn = os.path.join(path, fn)
-        if xbmcvfs.exists(fn):
-            os.chmod(fn, 0666)
         do, exc = self.__callwrapper(IPCClient.CALL_SAV, author, fn)
         if exc.errno == IPCERROR_SAVEFAILED:
             exc.updatemessage(author, fn)
@@ -427,9 +422,6 @@ class IPCClient(IPCClientBase):
         if author is None:
             author = self.addonname
         path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
-        if xbmcvfs.exists(path) == 0:
-            xbmcvfs.mkdirs(path)
-            os.chmod(path, 0666)
         fn = os.path.join(path, '{0}-{1}.p'.format(self.addonname, author))
         if xbmcvfs.exists(fn) == 1:
             do, exc = self.__callwrapper(IPCClient.CALL_RST, author, fn)

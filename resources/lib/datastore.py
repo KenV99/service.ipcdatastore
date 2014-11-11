@@ -19,6 +19,7 @@
 
 import os
 import sys
+import stat
 import time
 from cPickle import dump, load
 
@@ -110,6 +111,8 @@ class DataObjects(object):
         self.__odict = {}
 
     def savedata(self, author, fn):
+        default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
+        default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
         save = {}
         for key in self.__odict:
             if key[0] == author:
@@ -117,15 +120,23 @@ class DataObjects(object):
                 tmp.requestors = {}
                 save[key] = tmp
         try:
+            path = os.path.dirname(fn)
+            os.chmod(path, default_dir_mod)
             output = open(fn, 'wb')
             dump(save, output, -1)
             output.close()
+            os.chmod(fn, default_file_mod)
             return True
         except:
             return False
 
     def restoredata(self, author, fn):
+        default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
+        default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
         try:
+            path = os.path.dirname(fn)
+            os.chmod(path, default_dir_mod)
+            os.chmod(fn, default_file_mod)
             inputf = open(fn, 'rb')
             restore = load(inputf)
             inputf.close()
