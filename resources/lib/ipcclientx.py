@@ -21,36 +21,41 @@ import os
 from collections import namedtuple
 from cPickle import PickleError, PicklingError
 
-import pyro4
-import pyro4.errors
-import pyro4.util
-from ipc.ipcclient import IPCClient as IPCClientBase
-
-
-try:
-    import ipcclientxerrors
-except:
-    import resources.lib.ipcclientxerrors as ipcclientxerrors
-from caller_name import caller_name
-__callingmodule__ = caller_name()
 if 'win' in sys.platform:
-    isKodi = 'XBMC' in sys.executable
+    isKodi = 'xbmc' in sys.executable.lower() or 'kodi' in sys.executable.lower()
 else:
     isKodi = True
+
 if isKodi:
     import xbmc
     import xbmcaddon
     import xbmcvfs
-    if __callingmodule__ != 'default.py':
-        dspath = os.path.join(xbmcaddon.Addon('service.ipcdatastore').getAddonInfo('path'), 'resources', 'lib')
-    else:
-        dspath = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')
-    sys.path.append(dspath)
+    # ensure access to shared object definition
+    path_to_shared_obj = os.path.join(xbmcaddon.Addon('service.ipcdatastore').getAddonInfo('path'), 'resources', 'lib')
+    if path_to_shared_obj not in sys.path:
+        sys.path.insert(0, path_to_shared_obj)
+
+    # ensure aceess to required script.module. Currently an issue in Helix Beta 2
+    path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
+    if path_to_required_modules not in sys.path:
+        sys.path.insert(0, path_to_required_modules)
 else:
     try:
         from xbmcdummy import xbmc, xbmcaddon, xbmcvfs
     except:
         from resources.lib.xbmcdummy import xbmc, xbmcaddon, xbmcvfs
+
+# required modules outside local path
+import pyro4
+import pyro4.errors
+import pyro4.util
+from ipc.ipcclient import IPCClient as IPCClientBase
+
+# required modules that should be in local path
+import resources.lib.ipcclientxerrors as ipcclientxerrors
+from resources.lib.caller_name import caller_name
+
+__callingmodule__ = caller_name()
 
 DEBUG = False
 if DEBUG:
@@ -87,10 +92,9 @@ class IPCClient(IPCClientBase):
         super(IPCClient, self).__init__(name, host, port, datatype)
         self.cache = {}
         if __callingmodule__ == 'default.py':
-            addonname = xbmcaddon.Addon().getAddonInfo('name')
+            self.addonname = xbmcaddon.Addon().getAddonInfo('id')
         else:
-            addonname = 'ipcdatastore'
-        self.addonname = addonname.replace('.', '-')
+            self.addonname = 'service.ipcdatastore'
         self.raise_exception = False
         self.num_of_server_retries = 5
         self.ReturnData = namedtuple('Data', ['value', 'ts', 'cached'])
@@ -386,7 +390,7 @@ class IPCClient(IPCClientBase):
     def savedata(self, author=None):
         """
         Saves all of the data for a given author as a pickle object in the addon_data directory for
-        service.ipcdatastore
+        service.ipcdatastore. Plan is to implement a way to do this automatically on server shutdown.
         :type author: str
         :return: True on success, False on failure
         :rtype: bool

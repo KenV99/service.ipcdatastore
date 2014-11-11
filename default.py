@@ -23,8 +23,6 @@ import os
 import xbmc
 import xbmcaddon
 
-#from resources.lib.debugger import start_debugger
-#start_debugger()
 
 # *****************************************************************************************************************
 #  IT IS EXTREMELY IMPORTANT THAT THE DIRECTORY WHERE THE FILE(S) THAT CONTAIN(S) THE CLASS DEFINITION(S) OF THE
@@ -32,11 +30,20 @@ import xbmcaddon
 #  CONNECT.
 #  Do not use realtive path imports at the time of object instantiation before registering on the server.
 #  The client will not be able to retrieve the return structures and will generate an error.
-sys.path.append(os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib'))
+#  Either add the path of object direct to sys.path or use addon.xml to add a module type extension point to point
+#  to the path where the module containing the definition of the object to be shared resides
+path_to_shared_obj = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')
+tmp = sys.path
+if path_to_shared_obj not in sys.path:
+    sys.path.insert(0, path_to_shared_obj)
 from datastore import DataObjects
 # ******************************************************************************************************************
 
+path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
+if path_to_required_modules not in sys.path:
+    sys.path.insert(0, path_to_required_modules)
 from ipc.ipcserver import IPCServer
+
 from resources.lib.ipcclientx import IPCClient
 
 myserver = None

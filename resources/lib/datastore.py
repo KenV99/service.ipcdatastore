@@ -17,8 +17,21 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+import os
+import sys
 import time
 from cPickle import dump, load
+
+if 'win' in sys.platform:
+    isKodi = 'xbmc' in sys.executable.lower() or 'kodi' in sys.executable.lower()
+else:
+    isKodi = True
+if isKodi:
+    import xbmcaddon
+    path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
+    if path_to_required_modules not in sys.path:
+        sys.path.insert(0, path_to_required_modules)
+
 import pyro4
 
 IPCERROR_UKNOWN = 0
@@ -27,15 +40,6 @@ IPCERROR_USE_CACHED_COPY = 2
 IPCERROR_SERVER_TIMEOUT = 3
 IPCERROR_CONNECTION_CLOSED = 4
 IPCERROR_NONSERIALIZABLE = 5
-# ipcerror_codestomsg = {
-#     IPCERROR_UKNOWN: 'Unknown error',
-#     IPCERROR_NO_VALUE_FOUND: 'No value found for index',
-#     IPCERROR_USE_CACHED_COPY: 'Use cached copy',
-#     IPCERROR_SERVER_TIMEOUT: 'Server not responding',
-#     IPCERROR_CONNECTION_CLOSED: 'Sever connection closed',
-#     IPCERROR_NONSERIALIZABLE: 'Object not serializable'
-# }
-
 
 class DataObjectBase(object):
     def __init__(self):

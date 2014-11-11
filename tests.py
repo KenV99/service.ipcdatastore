@@ -22,7 +22,7 @@ import os
 import time
 import unittest
 if 'win' in sys.platform:
-    isKodi = 'XBMC' in sys.executable
+    isKodi = 'xbmc' in sys.executable.lower() or 'kodi' in sys.executable.lower()
 else:
     isKodi = True
 if isKodi:
@@ -32,26 +32,20 @@ if isKodi:
     import xbmcvfs
     __settings__ = xbmcaddon.Addon("service.ipcdatastore")
     __language__ = __settings__.getLocalizedString
-    path = xbmc.translatePath('special://home/addons/script.module.ipc/lib')
-    xbmc.log('@@@ Adding to path: {0}'.format(path))
-    sys.path.insert(0, path)
-try:
-    from ipcclientx import IPCClient
-except:
-    from resources.lib.ipcclientx import IPCClient
-try:
-    from datastore import DataObjects
-except:
-    from resources.lib.datastore import DataObjects
-try:
-    import ipcclientxerrors
-except:
-    import resources.lib.ipcclientxerrors as ipcclientxerrors
 
+    # ensure aceess to required script.module. Currently an issue in Helix Beta 2
+    path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
+    if path_to_required_modules not in sys.path:
+        sys.path.insert(0, path_to_required_modules)
+
+# required modules outside local path
 from ipc.ipcserver import IPCServer
 import pyro4
 
-
+# required modules that should be in local path
+from resources.lib.ipcclientx import IPCClient
+from resources.lib.datastore import DataObjects
+import resources.lib.ipcclientxerrors as ipcclientxerrors
 
 class TestIPCClient(unittest.TestCase):
 
@@ -63,7 +57,7 @@ class TestIPCClient(unittest.TestCase):
 
     def setUp(self):
         self.client = IPCClient()
-        self.name = 'ipcdatastore'
+        self.name = 'tests.ipcdatastore'
         self.senddata(self.client)
 
 
@@ -94,7 +88,7 @@ class TestIPCClient(unittest.TestCase):
             self.assertEqual(1, 2, 'Failed: data list returned in wrong format')
 
     def test_delete(self):
-        x = self.client.delete('tuple')
+        x = self.client.delete('tuple', author=self.name)
         self.assertEqual(x, self.data['tuple'], msg='Failed to return data on delete')
         x = self.client.get('tuple')
         self.assertEqual(x, None, msg='Failed to return None after delete')
@@ -109,7 +103,7 @@ class TestIPCClient(unittest.TestCase):
         x = self.client.get('int', author=self.name, requestor='tests', return_tuple=True)
         self.assertEqual(x.cached, False, msg='Failed due to value cached on first pass')
         self.client.clearcache()
-        x = self.client.get('int', author = self.name, requestor='tests', return_tuple=True)
+        x = self.client.get('int', author=self.name, requestor='tests', return_tuple=True)
         self.assertEqual(x.cached, False, msg='Failed to clear cache')
 
     def test_clearall(self):
@@ -158,7 +152,7 @@ class TestIPCClient(unittest.TestCase):
         self.assertEqual(self.client.server_available(), False, msg='Failed server_available testing for unavail server')
         ee= None
         try:
-            self.client.get('x')
+            self.client.get('int', author=self.name)
         except Exception as e:
             ee=e
         self.assertEqual(ee.__class__.__name__, ipcclientxerrors.ServerUnavailableError.__name__, msg='Failed to raise'
