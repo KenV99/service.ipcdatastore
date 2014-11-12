@@ -16,14 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/license/>.
 
-"""
-.. module:: default
-   :platform: Windows, 'nixs, OSX, Android
-   :synopsis: The default script that is run by 'service.ipcdatastore'. Starts server and tests client.
 
-.. moduleauthor:: KenV99
-
-"""
 
 import sys
 import os
@@ -64,8 +57,9 @@ myserver = None
 
 def serverstart(data_name='kodi-IPC', host='localhost', port=9099):
     """
-    .. function:: serverstart(data_name='kodi-IPC', host='localhost', port=9099)
+
     This function starts the pyro4 server. It runs in a separate thread. See :class:ipc.ipcserver.IPCServer
+
     :param data_name: Arbitrary name for the data object being shared as a remote object
     :type data_name: str
     :param host: Specifies the resolvable hostname or IP address for the socket where the object will be shared.
@@ -73,6 +67,7 @@ def serverstart(data_name='kodi-IPC', host='localhost', port=9099):
     :param port: The port for the socket
     :type port: int
     :return: None
+
     """
 
     #    .start() is required since the server is started in a separate thread. This done to prevent
@@ -148,7 +143,9 @@ class PlayerServer(xbmc.Player):
 class PlayerClient(xbmc.Player):
     """
     .. class:: PlayerClient(xbmc.Player)
+
     Separate Player subclassed from xbmc.Player that would otherwise be instantiated from a different addon
+
     """
 
     def __init__(self):
@@ -169,10 +166,10 @@ class PlayerClient(xbmc.Player):
                 break
         dialog = xbmcgui.Dialog()
         if isinstance(data, dict):
-            msg = '{0}x{1} @ {2} {3}'.format(data['dwidth'], data['dheight'], data['fps'], 9 - numchecks)
+            msg = '{0}x{1} @ {2}'.format(data['dwidth'], data['dheight'], data['fps'])
             dialog.notification('ipcdatastore', msg, None, 2000, True)
         else:
-            dialog.notification('ipcdatastore', 'Time out error receiving data {0}'.format(9 - numchecks),
+            dialog.notification('ipcdatastore', 'Time out error receiving data x {0}'.format(9 - numchecks),
                                 None, 2000, True)
 
     def onPlayBackResumed(self):

@@ -72,6 +72,20 @@ IPCERROR_RESTOREFAILED = 7
 
 
 class IPCClient(IPCClientBase):
+    """
+
+    Subclasses ipcclient and extends functionality for datastore object
+
+    :param addon_id: If specified, this supercedes the name/port/host. Checks settings.xml for the info.
+    :type addon_id: str
+    :param name: Arbitrary name for the object being used, must match the name used by server
+    :type name: str
+    :param port: Port matching server port
+    :type port: int
+    :param datatype: Type of data transport being used options: pickle, serpent, json, marshall. Must match server
+    :type datatype: str
+
+    """
     CALL_GET = 1
     CALL_SET = 2
     CALL_DEL = 3
@@ -82,16 +96,7 @@ class IPCClient(IPCClientBase):
     CALL_CLC = 8
 
     def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
-        """
-        :param addon_id: If specified, this supercedes the name/port/host. Checks settings.xml for the info.
-        :type addon_id: str
-        :param name: Arbitrary name for the object being used, must match the name used by server
-        :type name: str
-        :param port: Port matching server port
-        :type port: int
-        :param datatype: Type of data transport being used options: pickle, serpent, json, marshall. Must match server
-        :type datatype: str
-        """
+
         if addon_id != '':
             try:
                 name = xbmcaddon.Addon(addon_id).getSetting('data_name')
@@ -209,6 +214,7 @@ class IPCClient(IPCClientBase):
         Sets a value on the server. Automatically adds the addon name as the author. The value is any valid object
         that can be accepted by the chosen datatype (see above). If the class attribute raise_exception is True,
         will raise an exception with failure.
+
         :param name: The variable name
         :type name: str
         :param value: The value of the variable
@@ -218,6 +224,7 @@ class IPCClient(IPCClientBase):
         :type author: str
         :returns: True for success, False for failure
         :rtype: bool
+
         """
         if author is None:
             author = self.addonname
@@ -242,7 +249,7 @@ class IPCClient(IPCClientBase):
         :type return_tuple: bool
         :return: Either the stored item or a namedtuple containing the stored item followed by the timestamp(float)
                  and whether or not the item was returned from the cache
-        :rtype: object or namedtuple
+        :rtype: object or namedtuple('Data', ['value', 'ts', 'cached'])
         """
         if do is not None:
             value = do.value
@@ -269,17 +276,22 @@ class IPCClient(IPCClientBase):
         data. There is a fallback such that if the data is NOT in the cache, the server then provides the data. Each
         piece of data that is received is locally cached for this purpose.
         When ts and/or retiscached is True, the method returns a list instead of the stored variable. See below.
+
         :param name: The variable name
         :type name: str
         :param author: The author of the data. All of the data is indexed by author and variable name in order to reduce
                         variable name overlap. If not supplied, the addon name is used.
         :type author: str
+        :param requestor: The name of the requestor of the data. Defaults to the addon name if found. Used for caching
+        :type requestor: str
         :param return_tuple: Whether to return the stored object or a named tuple containg the object, the timestamp
                              and a bool indicating that the object came from the local cache. The named tuple returns
                              the the names value, ts and cached.
+        :type return_tuple: bool
         :return: Either the value(object) assigned to 'name' or a named tuple containing the value, ts and/or if the
                  item came from the local cache.
-        :rtype: object or namedtuple
+        :rtype: object or namedtuple('Data', ['value', 'ts', 'cached'])
+
         """
         if author is None:
             author = self.addonname
@@ -322,11 +334,13 @@ class IPCClient(IPCClientBase):
         Deletes an item from the datastore and returns the deleted item's value. Returns None if not found or raises
         an exception if the .raise_exceptions attribute is set to True. The return item is optionally returned as a
         named tuple (see get definition).
+
         :type name: str
         :type author: __builtin__.NoneType
         :type return_tuple: bool
         :return:
-        :rtype: object or namedtuple, None on failure
+        :rtype: object or namedtuple('Data', ['value', 'ts', 'cached']), None on failure
+
         """
         if author is None:
             author = self.addonname
@@ -348,10 +362,12 @@ class IPCClient(IPCClientBase):
     def get_data_list(self, author=None):
         """
         Retrieves either a dict or list containing the variables names stored on the server.
+
         :type author: str or __builtin__.NoneType
         :return: A dictionary containing the authors as key and their variable names as a list. If author specified,
                  returns a list with the variable names. Returns None on failure or raises an exception.
         :rtype: dict or list
+
         """
         dl, exc = self.__callwrapper(IPCClient.CALL_LST, author)
         if exc.errno != -1:
@@ -366,8 +382,10 @@ class IPCClient(IPCClientBase):
     def clearall(self):
         """
         Clears all of the data on the server. Use with caution if multiple users are storing data.
+
         :return: True on success, False on failure
         :rtype: bool
+
         """
         do, exc = self.__callwrapper(IPCClient.CALL_CLR)
         self.cache = {}
@@ -383,8 +401,10 @@ class IPCClient(IPCClientBase):
     def clearcache(self):
         """
         Clears both the local cache and the server cache for the given addon calling using the addon name.
+
         :return: True on success, False on failure.
-        :rtype:bool
+        :rtype: bool
+
         """
         do, exc = self.__callwrapper(IPCClient.CALL_CLC, self.addonname)
         self.cache = {}
@@ -401,9 +421,11 @@ class IPCClient(IPCClientBase):
         """
         Saves all of the data for a given author as a pickle object in the addon_data directory for
         service.ipcdatastore. Plan is to implement a way to do this automatically on server shutdown.
+
         :type author: str
         :return: True on success, False on failure
         :rtype: bool
+
         """
         if author is None:
             author = self.addonname
@@ -425,9 +447,11 @@ class IPCClient(IPCClientBase):
     def restoredata(self, author=None):
         """
         Restores data on the server from a previously saved pickle (see above)
+
         :type author: str
         :return: True on success, False on failure
         :rtype: bool
+
         """
         if author is None:
             author = self.addonname
