@@ -70,6 +70,7 @@ IPCERROR_NONSERIALIZABLE = 5
 IPCERROR_SAVEFAILED = 6
 IPCERROR_RESTOREFAILED = 7
 
+
 class IPCClient(IPCClientBase):
     CALL_GET = 1
     CALL_SET = 2
@@ -80,8 +81,10 @@ class IPCClient(IPCClientBase):
     CALL_RST = 7
     CALL_CLC = 8
 
-    def __init__(self, name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
+    def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
         """
+        :param addon_id: If specified, this supercedes the name/port/host. Checks settings.xml for the info.
+        :type addon_id: str
         :param name: Arbitrary name for the object being used, must match the name used by server
         :type name: str
         :param port: Port matching server port
@@ -89,6 +92,13 @@ class IPCClient(IPCClientBase):
         :param datatype: Type of data transport being used options: pickle, serpent, json, marshall. Must match server
         :type datatype: str
         """
+        if addon_id != '':
+            try:
+                name = xbmcaddon.Addon(addon_id).getSetting('data_name')
+                host = xbmcaddon.Addon(addon_id).getSetting('host')
+                port = xbmcaddon.Addon(addon_id).getSetting('port')
+            except:
+                pass
         super(IPCClient, self).__init__(name, host, port, datatype)
         self.cache = {}
         if __callingmodule__ == 'default.py':
@@ -99,7 +109,7 @@ class IPCClient(IPCClientBase):
         self.num_of_server_retries = 5
         self.ReturnData = namedtuple('Data', ['value', 'ts', 'cached'])
         if DEBUG:
-            self.dos=DataObjects()
+            self.dos = DataObjects()
             self.dos.set('x', 20, 'ipcdatastore')
 
     def getexposedobj(self):
@@ -145,7 +155,7 @@ class IPCClient(IPCClientBase):
                 elif calltype == IPCClient.CALL_CLC:
                     dos.clearcache(*args)
             except pyro4.errors.ConnectionClosedError as e:
-                retries -=1
+                retries -= 1
                 if not DEBUG:
                     dos._pyroReconnect()
                 err = IPCERROR_CONNECTION_CLOSED
@@ -153,11 +163,11 @@ class IPCClient(IPCClientBase):
             except pyro4.errors.CommunicationError as e:
                 retries -= 1
                 err = IPCERROR_SERVER_TIMEOUT
-            except (PickleError, PicklingError, TypeError) as e:
+            except (PickleError, PicklingError, TypeError):
                 # TypeError is what you get when using cPickle and the object is not serializable for some reason
                 err = IPCERROR_NONSERIALIZABLE
                 break
-            except Exception as e:
+            except Exception:
                 err = IPCERROR_UKNOWN
                 break
             else:
@@ -247,7 +257,7 @@ class IPCClient(IPCClientBase):
         return ret
 
     def __get(self, name, author, requestor, force=False):
-        do,exc = self.__callwrapper(IPCClient.CALL_GET, requestor, name, author, force)
+        do, exc = self.__callwrapper(IPCClient.CALL_GET, requestor, name, author, force)
         return do, exc
 
     def get(self, name, author=None, requestor=None, return_tuple=False):
@@ -281,7 +291,7 @@ class IPCClient(IPCClientBase):
             if idx in self.cache:
                 do = self.cache[idx]
                 return self.__setreturn(do, cached=True, return_tuple=return_tuple)
-            else:  #SHOULD BE IN CACHE, SO FORCE SERVER TO PROVIDE
+            else:  # SHOULD BE IN CACHE, SO FORCE SERVER TO PROVIDE
                 do, exc = self.__get(name, author, requestor, force=True)
                 if exc.errno == IPCERROR_NO_VALUE_FOUND:
                     exc.varname = name

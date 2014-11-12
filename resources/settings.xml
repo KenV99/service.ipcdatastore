@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <settings>
   <category label="32001">
+    <setting default="kodi-IPC" id="data_name" label="32019" type="text" />
     <setting default="localhost" id="host" label="32002" type="text" />
     <setting default="9099" id="port" label="32003" type="number" />
 	<setting default="false" id="startserver" label="32004" type="bool" />
+    <setting default="" id="testclient" label="32006" type="action" action="RunScript(special://home/addons/service.ipcdatastore/testclient.py)"
+            enable="eq(-1,true)" />
+    <setting default="false" id="servevideo" label="32017" type="bool" enable="eq(-2,true)" />
+    <setting default="false" id="showdata" label="32018" type="bool" enable="eq(-1,true)" />
     <setting default="" id="runtests" label="32005" type="action" action="RunScript(special://home/addons/service.ipcdatastore/tests.py)" />
-    <setting default="" id="testclient" label="32006" type="action" action="RunScript(special://home/addons/service.ipcdatastore/testclient.py)" />
   </category>
 </settings>

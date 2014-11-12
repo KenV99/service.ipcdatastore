@@ -16,10 +16,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
+
+
 class IPCClientError(Exception):
     def __init__(self):
         self.errno = -1
         pass
+
 
 class VarNotFoundError(IPCClientError):
     def __init__(self):
@@ -28,15 +31,18 @@ class VarNotFoundError(IPCClientError):
     def updatemessage(self, varname, author):
         self.message = 'Variable not found on server for author={0}, var_name={1}'. format(author, varname)
 
+
 class ServerReconnectFailedError(IPCClientError):
     def __init__(self, uri, tb):
         self.message = 'Server connection closed and could not be reopened for {0}'.format(uri)
         self.tb = tb
 
+
 class ServerUnavailableError(IPCClientError):
     def __init__(self, uri, tb):
         self.message = 'Server unavailable for uri:{0}'.format(uri)
         self.tb = tb
+
 
 class ObjectNotSerializableError(IPCClientError):
     def __init__(self):
@@ -45,9 +51,11 @@ class ObjectNotSerializableError(IPCClientError):
     def updatemessage(self, obj):
         self.message = 'The object of type {0} provided failed serialization'.format(str(type(obj)))
 
+
 class UseCachedCopyError(IPCClientError):
     def __init__(self):
         self.message = 'Using cached copy'
+
 
 class SaveFailedError(IPCClientError):
     def __init__(self):
@@ -56,6 +64,7 @@ class SaveFailedError(IPCClientError):
     def updatemessage(self, author, fn):
         self.message = 'Save failed for author={0}, filename={1}'.format(author, fn)
 
+
 class RestoreFailedError(IPCClientError):
     def __init__(self):
         self.message = ''
@@ -63,10 +72,12 @@ class RestoreFailedError(IPCClientError):
     def updatemessage(self, author, fn):
         self.message = 'Restore failed for author={0}, filename={1}'.format(author, fn)
 
+
 class UnknownError(IPCClientError):
     def __init__(self, msg, tb):
         self.message = msg.message
         self.tb = tb
+
 
 class NoError(IPCClientError):
     def __init__(self):

@@ -3,18 +3,18 @@
 #
 # Copyright (C) 2014 KenV99
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program. If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
 import sys
@@ -22,6 +22,7 @@ import os
 import stat
 import time
 import unittest
+
 if 'win' in sys.platform:
     isKodi = 'xbmc' in sys.executable.lower() or 'kodi' in sys.executable.lower()
 else:
@@ -31,6 +32,7 @@ if isKodi:
     import xbmcgui
     import xbmcaddon
     import xbmcvfs
+
     __settings__ = xbmcaddon.Addon("service.ipcdatastore")
     __language__ = __settings__.getLocalizedString
 
@@ -48,11 +50,11 @@ from resources.lib.ipcclientx import IPCClient
 from resources.lib.datastore import DataObjects
 import resources.lib.ipcclientxerrors as ipcclientxerrors
 
-class TestIPCClient(unittest.TestCase):
 
+class TestIPCClient(unittest.TestCase):
     def senddata(self, client):
-        self.data = {'int': 5, 'float':1.314, 'str':'abcdef', 'tuple':(7, 'hello'), 'list':[0, 8.1, 'goodbye'],
-                     'dict':{'name':'Ned Stark', 'deceased':True}}
+        self.data = {'int': 5, 'float': 1.314, 'str': 'abcdef', 'tuple': (7, 'hello'), 'list': [0, 8.1, 'goodbye'],
+                     'dict': {'name': 'Ned Stark', 'deceased': True}}
         for key in self.data:
             client.set(key, self.data[key], author=self.name)
 
@@ -60,7 +62,6 @@ class TestIPCClient(unittest.TestCase):
         self.client = IPCClient()
         self.name = 'tests.ipcdatastore'
         self.senddata(self.client)
-
 
     def test_get(self):
         for key in self.data:
@@ -108,16 +109,13 @@ class TestIPCClient(unittest.TestCase):
         self.assertEqual(x.cached, False, msg='Failed to clear cache')
 
     def test_clearall(self):
-        dl = self.client.get_data_list()[self.name]
         self.client.clearall()
         dl = self.client.get_data_list()
         self.assertEqual(dl, {}, msg='Failed to clear all')
 
     def test_save_restore(self):
-        dl = self.client.get_data_list()[self.name]
         self.client.savedata(self.name)
         self.client.clearall()
-        dl = self.client.get_data_list()
         self.client.restoredata(self.name)
         dl = self.client.get_data_list()[self.name]
         k = self.data.keys()
@@ -131,7 +129,7 @@ class TestIPCClient(unittest.TestCase):
         except Exception as e:
             ee = e
         self.assertEqual(ee.__class__.__name__, ipcclientxerrors.ObjectNotSerializableError.__name__, msg='Failed'
-                                                                                            ' pickle exception testing')
+                         ' pickle exception testing')
         self.client.raise_exception = False
 
     def test_valuenotfound_error(self):
@@ -150,20 +148,22 @@ class TestIPCClient(unittest.TestCase):
         self.client.raise_exception = True
         self.client.num_of_server_retries = 1
         self.client.uri = 'PYRO:kodi-IGA@localhost:9990'
-        self.assertEqual(self.client.server_available(), False, msg='Failed server_available testing for unavail server')
-        ee= None
+        self.assertEqual(self.client.server_available(), False, msg='Failed server_available testing for'
+                                                                    ' unavail server')
+        ee = None
         try:
             self.client.get('int', author=self.name)
         except Exception as e:
-            ee=e
+            ee = e
         self.assertEqual(ee.__class__.__name__, ipcclientxerrors.ServerUnavailableError.__name__, msg='Failed to raise'
-                                                                                              ' ServerUnavailableError')
+                         ' ServerUnavailableError')
         self.client.raise_exception = False
         self.client.uri = tmp
 
+
 def runtests():
-    default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
-    default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
+    default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+    default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
     pyro4.config.COMMTIMEOUT = 2
     client = IPCClient()
     if isKodi:
@@ -208,7 +208,7 @@ def runtests():
             else:
                 logf.write('Using server previously started for tests\n')
             suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
-            unittest.TextTestRunner(stream = logf, verbosity=2).run(suite)
+            unittest.TextTestRunner(stream=logf, verbosity=2).run(suite)
             if serverstartedfortest:
                 logf.write('Stopping server\n')
                 server.stop()
@@ -241,5 +241,3 @@ def runtests():
 
 if __name__ == '__main__':
     runtests()
-
-

@@ -3,10 +3,10 @@
 #
 # Copyright (C) 2014 KenV99
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,6 +18,7 @@
 #
 
 import os
+
 
 class xbmc(object):
     LOGERROR = 2
@@ -32,8 +33,8 @@ class xbmc(object):
         ret = ret.replace('/', '\\')
         return ret
 
-class AddOn(object):
 
+class AddOn(object):
     def __init__(self, name=''):
         if name == '':
             name = 'ipcdatastore'
@@ -43,13 +44,14 @@ class AddOn(object):
         if myid == 'name':
             return self.name
 
+
 class xbmcaddon(object):
     @staticmethod
     def Addon(name=''):
         return AddOn(name)
 
-class xbmcvfs(object):
 
+class xbmcvfs(object):
     @staticmethod
     def exists(path):
         if os.path.exists(path):

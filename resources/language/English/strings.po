@@ -29,7 +29,7 @@ msgid "Start server"
 msgstr ""
 
 msgctxt "#32005"
-msgid "Run tests (output will be in addon data directory as test.log)"
+msgid "Run test suite (output will be in addon data directory as test.log)"
 msgstr ""
 
 msgctxt "#32006"
@@ -76,3 +76,14 @@ msgctxt "#32016"
 msgid "Tests complete"
 msgstr ""
 
+msgctxt "#32017"
+msgid "Serve video data from log?"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Show video data from log?"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Shared object name for server"
+msgstr ""

@@ -19,8 +19,9 @@
 import inspect
 import os
 
+
 def caller_name():
     stack = inspect.stack()
     caller = stack[len(stack)-1][1]
-    ret =  os.path.basename(caller)
+    ret = os.path.basename(caller)
     return ret

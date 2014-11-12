@@ -3,7 +3,7 @@
 #
 # Copyright (C) 2014 KenV99
 #
-#    This program is free software: you can redistribute it and/or modify
+# This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
@@ -29,6 +29,7 @@ else:
     isKodi = True
 if isKodi:
     import xbmcaddon
+
     path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
     if path_to_required_modules not in sys.path:
         sys.path.insert(0, path_to_required_modules)
@@ -42,10 +43,12 @@ IPCERROR_SERVER_TIMEOUT = 3
 IPCERROR_CONNECTION_CLOSED = 4
 IPCERROR_NONSERIALIZABLE = 5
 
+
 class DataObjectBase(object):
     def __init__(self):
         self.ts = None
         self.value = None
+
 
 class DataObject(DataObjectBase):
     def __init__(self, dox):
@@ -53,12 +56,14 @@ class DataObject(DataObjectBase):
         self.ts = dox.ts
         self.value = dox.value
 
+
 class DataObjectX(DataObjectBase):
     def __init__(self, value):
         super(DataObjectX, self).__init__()
         self.ts = time.time()
         self.value = value
         self.requestors = {}
+
 
 class DataObjects(object):
     def __init__(self):
@@ -111,8 +116,8 @@ class DataObjects(object):
         self.__odict = {}
 
     def savedata(self, author, fn):
-        default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
-        default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
+        default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+        default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
         save = {}
         for key in self.__odict:
             if key[0] == author:
@@ -131,8 +136,8 @@ class DataObjects(object):
             return False
 
     def restoredata(self, author, fn):
-        default_dir_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IXUSR|stat.S_IRGRP|stat.S_IXGRP|stat.S_IROTH|stat.S_IXOTH
-        default_file_mod = stat.S_IRUSR|stat.S_IWUSR|stat.S_IRGRP|stat.S_IWGRP|stat.S_IROTH
+        default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
+        default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
         try:
             path = os.path.dirname(fn)
             os.chmod(path, default_dir_mod)
@@ -140,7 +145,7 @@ class DataObjects(object):
             inputf = open(fn, 'rb')
             restore = load(inputf)
             inputf.close()
-        except Exception as e:
+        except Exception:
             return False
         else:
             for key in restore:
@@ -153,5 +158,3 @@ class DataObjects(object):
         for key in self.__odict:
             if requestor in self.__odict[key].requestors:
                 del self.__odict[key].requestors[requestor]
-
-
