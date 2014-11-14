@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>script.module.ipc &mdash; service.ipcdatastore 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="service.ipcdatastore 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="service.ipcdatastore" href="service.ipcdatastore.html" />
+    <link rel="prev" title="Background and Features" href="background.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="service.ipcdatastore.html" title="service.ipcdatastore"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="background.html" title="Background and Features"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">service.ipcdatastore 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="script-module-ipc">
+<h1>script.module.ipc<a class="headerlink" href="#script-module-ipc" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-ipcserver">
+<span id="classes-and-methods-from-script-module-ipc"></span><span id="index-0"></span><h2>Classes and methods from script.module.ipc<a class="headerlink" href="#module-ipcserver" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="ipcserver.IPCServer">
+<em class="property">class </em><code class="descclassname">ipcserver.</code><code class="descname">IPCServer</code><span class="sig-paren">(</span><em>expose_obj</em>, <em>host='localhost'</em>, <em>name='kodi-IPC'</em>, <em>port=9099</em>, <em>serializer='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes all parameters needed to start the server using a specifically named server and port.
+(pyro4 allows for the use of a nameserver if desired. Details at: <a class="reference external" href="https://pythonhosted.org/Pyro4/index.html">https://pythonhosted.org/Pyro4/index.html</a>)
+Inherits from threading so that an EXTERNAL event loop can be used to exit gracefully when Kodi is shutting down
+by calling the stop() method. Note that if you plan to run more than one server, you should specify &#8216;name&#8217; and
+&#8216;port&#8217; to prevent conflicts and errors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>expose_obj</strong> (<em>object or classic class</em>) &#8211; This is the python object whose methods will be exposed to the clients</li>
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The host that will be used for the server</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name used by the socket protocol for this datastore</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port for the socket used</li>
+<li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The serialization protocol to be used. Options: pickle, serpent, marshall, json</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ipcserver.IPCServer.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Note that you must call .start() on the class instance to start the server in a separate thread.
+Do not call this routine directly with .run() or it will run in the same thread as the caller and lock when it
+hits daemon.requestLoop().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcserver.IPCServer.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stops the server. Raises an exception on failure</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ipcserver.IPCServer.test_pickle">
+<em class="property">static </em><code class="descname">test_pickle</code><span class="sig-paren">(</span><em>test_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.test_pickle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether an object or instance is pickleable (serializable for default server sharing protocol).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>test_obj</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; The object to be tested</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if pickleable, False if not</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-ipcclient"></span><dl class="class">
+<dt id="ipcclient.IPCClient">
+<em class="property">class </em><code class="descclassname">ipcclient.</code><code class="descname">IPCClient</code><span class="sig-paren">(</span><em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>datatype='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initializes the client to use a named proxy for datacommunication with the server. The method &#8216;get_data_object&#8217;
+should be invoked just before running a server based method and then destroyed promptly to prevent running out
+of data sockets on the server and preventing dropped connections. This can be done by dropping out of context
+and need not be done explicitly. See pyro4 docs at <a class="reference external" href="https://pythonhosted.org/Pyro4/index.html">https://pythonhosted.org/Pyro4/index.html</a> for details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Arbitrary name for the object being used, must match the name used by server</li>
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The resolvable name or IP address where the server is running</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Port matching server port</li>
+<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ipcclient.IPCClient.get_exposed_object">
+<code class="descname">get_exposed_object</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.get_exposed_object" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Retrieves a reference to the object being shared by the server via proxy as pyro4 remote object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="ipcclient.IPCClient.get_traceback">
+<em class="property">static </em><code class="descname">get_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.get_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful for errors that occur within the logic of the shared object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A detailed traceback of the last error</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcclient.IPCClient.server_available">
+<code class="descname">server_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.server_available" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks to see if a connection can be made to the shared object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Return True if connection is successful, False if not</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="example-usage-of-ipcserver-and-ipclient">
+<span id="index-1"></span><h2>Example usage of ipcserver and ipclient<a class="headerlink" href="#example-usage-of-ipcserver-and-ipclient" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">script.module.ipc</a><ul>
+<li><a class="reference internal" href="#module-ipcserver">Classes and methods from script.module.ipc</a></li>
+<li><a class="reference internal" href="#example-usage-of-ipcserver-and-ipclient">Example usage of ipcserver and ipclient</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="background.html"
+                        title="previous chapter">Background and Features</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="service.ipcdatastore.html"
+                        title="next chapter">service.ipcdatastore</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/script.module.ipc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="service.ipcdatastore.html" title="service.ipcdatastore"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="background.html" title="Background and Features"
+             >previous</a> |</li>
+        <li><a href="index.html">service.ipcdatastore 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2014, KenV99.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
+    </div>
+  </body>
+</html>
