@@ -38,7 +38,6 @@ import xbmcaddon
 """
 
 path_to_shared_obj = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')
-tmp = sys.path
 if path_to_shared_obj not in sys.path:
     sys.path.insert(0, path_to_shared_obj)
 from datastore import DataObjects
@@ -213,7 +212,7 @@ def main():
             player_s = PlayerServer()
             if xbmcaddon.Addon().getSetting('showdata') == 'true':
                 # Start the client that shows the video data in a separate thread to simulate it being started remotely
-                # and prevent a threading conflict with the two player instances
+                # and prevent a threading conflict with the two player instances and the clients
                 t = threading.Thread(target=start_video_client)
                 t.start()
                 pass
