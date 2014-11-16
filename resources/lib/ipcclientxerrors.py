@@ -17,6 +17,14 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 
+IPCERROR_UKNOWN = 0
+IPCERROR_NO_VALUE_FOUND = 1
+IPCERROR_USE_CACHED_COPY = 2
+IPCERROR_SERVER_TIMEOUT = 3
+IPCERROR_CONNECTION_CLOSED = 4
+IPCERROR_NONSERIALIZABLE = 5
+IPCERROR_SAVEFAILED = 6
+IPCERROR_RESTOREFAILED = 7
 
 class IPCClientError(Exception):
     def __init__(self):

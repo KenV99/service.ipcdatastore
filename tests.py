@@ -46,7 +46,7 @@ from ipc.ipcserver import IPCServer
 import pyro4
 
 # required modules that should be in local path
-from resources.lib.ipcclientx import IPCClient
+from resources.lib.ipcclientx import IPCClientX
 from resources.lib.datastore import DataObjects
 import resources.lib.ipcclientxerrors as ipcclientxerrors
 
@@ -59,7 +59,7 @@ class TestIPCClient(unittest.TestCase):
             client.set(key, self.data[key], author=self.name)
 
     def setUp(self):
-        self.client = IPCClient()
+        self.client = IPCClientX()
         self.name = 'tests.ipcdatastore'
         self.senddata(self.client)
 
@@ -165,7 +165,7 @@ def runtests():
     default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
     default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
     pyro4.config.COMMTIMEOUT = 2
-    client = IPCClient()
+    client = IPCClientX()
     if isKodi:
         dialog = xbmcgui.Dialog()
         ret = dialog.yesno(__language__(32011), __language__(32012), __language__(32013))
@@ -213,7 +213,7 @@ def runtests():
                 logf.write('Stopping server\n')
                 server.stop()
             else:
-                client = IPCClient()
+                client = IPCClientX()
                 client.set('x', 20, 'ipcdatastore')
     except Exception as e:
         if isKodi:

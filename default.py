@@ -48,7 +48,7 @@ if path_to_required_modules not in sys.path:
     sys.path.insert(0, path_to_required_modules)
 from ipc.ipcserver import IPCServer
 
-from resources.lib.ipcclientx import IPCClient
+from resources.lib.ipcclientx import IPCClientX
 from resources.lib.mediainfofromlog import get_log_mediainfo
 
 myserver = None
@@ -99,7 +99,7 @@ def testclient():
     #     returns the last data value and timestamp
     #  clear_all(addon_name) - deletes all of the data associated with the addon_name
     #     returns all of the data in a keyword dict
-    client = IPCClient(addon_id='service.ipcdatastore')
+    client = IPCClientX(addon_id='service.ipcdatastore')
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
     client.set('x', 20)
     y = client.get('x')
@@ -119,7 +119,7 @@ class PlayerServer(xbmc.Player):
         # This actually puts the data on the server
         self.playingfile = self.getPlayingFile()
         mydict = get_log_mediainfo()
-        client = IPCClient(addon_id='service.ipcdatastore')
+        client = IPCClientX(addon_id='service.ipcdatastore')
         client.raise_exception = True
         client.set('videodata', mydict, author='service.ipcdatastore')
         self.server_flag = True
@@ -131,7 +131,7 @@ class PlayerServer(xbmc.Player):
 
     def onPlayBackStopped(self):
         if self.server_flag:
-            client = IPCClient(addon_id='service.ipcdatastore')
+            client = IPCClientX(addon_id='service.ipcdatastore')
             client.set('videodata', None)
             self.server_flag = False
 
@@ -153,7 +153,7 @@ class PlayerClient(xbmc.Player):
 
     def onPlayBackStarted(self):
         self.playingfile = self.getPlayingFile()
-        client = IPCClient(addon_id='service.ipcdatastore')
+        client = IPCClientX(addon_id='service.ipcdatastore')
         data = None
         numchecks = 8
         while numchecks > 0:

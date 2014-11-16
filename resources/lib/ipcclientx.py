@@ -49,7 +49,7 @@ else:
 import pyro4
 import pyro4.errors
 import pyro4.util
-from ipc.ipcclient import IPCClient as IPCClientBase
+from ipc.ipcclient import IPCClient as IPCClient
 
 # required modules that should be in local path
 import resources.lib.ipcclientxerrors as ipcclientxerrors
@@ -61,22 +61,12 @@ DEBUG = False
 if DEBUG:
     from datastore import DataObjects
 
-IPCERROR_UKNOWN = 0
-IPCERROR_NO_VALUE_FOUND = 1
-IPCERROR_USE_CACHED_COPY = 2
-IPCERROR_SERVER_TIMEOUT = 3
-IPCERROR_CONNECTION_CLOSED = 4
-IPCERROR_NONSERIALIZABLE = 5
-IPCERROR_SAVEFAILED = 6
-IPCERROR_RESTOREFAILED = 7
-
-
-class IPCClient(IPCClientBase):
+class IPCClientX(IPCClient):
     """
 
-    Subclasses ipcclient and extends functionality for datastore object
+    Subclasses IPCClient from script.module.ipc and extends functionality for a datastore object
 
-    :param addon_id: If specified, this supercedes the name/port/host. Checks settings.xml for the info.
+    :param addon_id: If specified, this supersedes the name/port/host. Checks settings.xml for the info.
     :type addon_id: str
     :param name: Arbitrary name for the object being used, must match the name used by server
     :type name: str
@@ -85,15 +75,16 @@ class IPCClient(IPCClientBase):
     :param datatype: Type of data transport being used options: pickle, serpent, json, marshall. Must match server
     :type datatype: str
 
+    There are two useful *public* attributes than can be changed after instantiation:
+
+    ==========================  ========================================================================================
+    ``raise_exception``:        | When set to True, will raise exceptions that can be caught rather than
+                                | failing silently, which is the default behavior.
+    ``num_of_server_retries``:  | If the client fails to connect to the server, the number of retries before
+                                | failing finally.
+    ==========================  ========================================================================================
+
     """
-    CALL_GET = 1
-    CALL_SET = 2
-    CALL_DEL = 3
-    CALL_LST = 4
-    CALL_CLR = 5
-    CALL_SAV = 6
-    CALL_RST = 7
-    CALL_CLC = 8
 
     def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
 
@@ -104,7 +95,7 @@ class IPCClient(IPCClientBase):
                 port = xbmcaddon.Addon(addon_id).getSetting('port')
             except:
                 pass
-        super(IPCClient, self).__init__(name, host, port, datatype)
+        super(IPCClientX, self).__init__(name, host, port, datatype)
         self.cache = {}
         if __callingmodule__ == 'default.py':
             self.addonname = xbmcaddon.Addon().getAddonInfo('id')
@@ -117,9 +108,6 @@ class IPCClient(IPCClientBase):
             self.dos = DataObjects()
             self.dos.set('x', 20, 'ipcdatastore')
 
-    def getexposedobj(self):
-        return pyro4.Proxy(self.uri)
-
     @staticmethod
     def logexception(exc):
         xbmc.log(exc.message)
@@ -127,79 +115,59 @@ class IPCClient(IPCClientBase):
             xbmc.log(exc.tb)
 
     def __callwrapper(self, calltype, *args):
-        # Why was this implemented this way? Why didn't I use a factory with 'getattr'?
-        # Because the dataobject 'dos' is a remote object, using 'getattr' causes another cycle of requesting the
-        # attributes from the serverside and then receiving them. Although this is not costly from a performance side,
-        # that getattr call also needs to be wrapped with exception handling. This condenses the interaction down to one
-        # call, sometimes being a one-way call. I know. It's ugly.
         retries = self.num_of_server_retries
         err = -1
         do = None
         exc = None
-
         while retries > 0:
             try:
                 if DEBUG:
                     dos = self.dos
                 else:
                     dos = pyro4.Proxy(self.uri)
-                if calltype == IPCClient.CALL_SET:
-                    dos.set(*args)
-                elif calltype == IPCClient.CALL_GET:
-                    do = dos.get(*args)
-                elif calltype == IPCClient.CALL_DEL:
-                    do = dos.delete(*args)
-                elif calltype == IPCClient.CALL_LST:
-                    do = dos.get_data_list(*args)
-                elif calltype == IPCClient.CALL_CLR:
-                    dos.clearall()
-                elif calltype == IPCClient.CALL_SAV:
-                    do = dos.savedata(*args)
-                elif calltype == IPCClient.CALL_RST:
-                    do = dos.restoredata(*args)
-                elif calltype == IPCClient.CALL_CLC:
-                    dos.clearcache(*args)
-            except pyro4.errors.ConnectionClosedError as e:
+                do = getattr(dos, calltype)(*args)
+            except pyro4.errors.ConnectionClosedError:
                 retries -= 1
-                if not DEBUG:
+                if not DEBUG and dos:
                     dos._pyroReconnect()
-                err = IPCERROR_CONNECTION_CLOSED
+                err = ipcclientxerrors.IPCERROR_CONNECTION_CLOSED
                 exc = ipcclientxerrors.ServerReconnectFailedError
-            except pyro4.errors.CommunicationError as e:
+            except pyro4.errors.CommunicationError:
                 retries -= 1
-                err = IPCERROR_SERVER_TIMEOUT
+                err = ipcclientxerrors.IPCERROR_SERVER_TIMEOUT
             except (PickleError, PicklingError, TypeError):
                 # TypeError is what you get when using cPickle and the object is not serializable for some reason
-                err = IPCERROR_NONSERIALIZABLE
+                err = ipcclientxerrors.IPCERROR_NONSERIALIZABLE
                 break
             except Exception:
-                err = IPCERROR_UKNOWN
+                err = ipcclientxerrors.IPCERROR_UKNOWN
                 break
             else:
                 err = -1
-                if not DEBUG:
+                if not DEBUG and dos:
                     dos._pyroRelease()
                 break
         #  Client side errors
-        if err == IPCERROR_SERVER_TIMEOUT:
+        if err == ipcclientxerrors.IPCERROR_SERVER_TIMEOUT:
             exc = ipcclientxerrors.ServerUnavailableError(self.uri, self.get_traceback())
-        elif err == IPCERROR_CONNECTION_CLOSED:
+        elif err == ipcclientxerrors.IPCERROR_CONNECTION_CLOSED:
             exc = ipcclientxerrors.ServerReconnectFailedError(self.uri, self.get_traceback())
-        elif err == IPCERROR_NONSERIALIZABLE:
+        elif err == ipcclientxerrors.IPCERROR_NONSERIALIZABLE:
             exc = ipcclientxerrors.ObjectNotSerializableError()
-        elif err == IPCERROR_UKNOWN:
+        elif err == ipcclientxerrors.IPCERROR_UKNOWN:
             exc = ipcclientxerrors.UnknownError(sys.exc_info()[1], self.get_traceback())
         # Server side errors
         elif do is not None:
             if isinstance(do, str):
+                # To minimize the amount of data sent back during an error, the error is sent as a one byte string
                 err = ord(do)
-                if err == IPCERROR_NO_VALUE_FOUND:
+                if err == ipcclientxerrors.IPCERROR_NO_VALUE_FOUND:
                     exc = ipcclientxerrors.VarNotFoundError()
-                elif err == IPCERROR_USE_CACHED_COPY:
+                elif err == ipcclientxerrors.IPCERROR_USE_CACHED_COPY:
                     exc = ipcclientxerrors.UseCachedCopyError()
-                elif err == IPCERROR_SAVEFAILED:
+                elif err == ipcclientxerrors.IPCERROR_SAVEFAILED:
                     exc = ipcclientxerrors.SaveFailedError()
-                elif err == IPCERROR_RESTOREFAILED:
+                elif err == ipcclientxerrors.IPCERROR_RESTOREFAILED:
                     exc = ipcclientxerrors.RestoreFailedError()
                 elif err != -1:
                     exc = ipcclientxerrors.UnknownError(sys.exc_info()[1], self.get_traceback())
@@ -212,7 +180,7 @@ class IPCClient(IPCClientBase):
     def set(self, name, value, author=None):
         """
         Sets a value on the server. Automatically adds the addon name as the author. The value is any valid object
-        that can be accepted by the chosen datatype (see above). If the class attribute raise_exception is True,
+        that can be accepted by the chosen datatype (see :class:`above <IPCClientX>`). If the class attribute raise_exception is True,
         will raise an exception with failure.
 
         :param name: The variable name
@@ -228,8 +196,8 @@ class IPCClient(IPCClientBase):
         """
         if author is None:
             author = self.addonname
-        do, exc = self.__callwrapper(IPCClient.CALL_SET, name, value, author)
-        if exc.errno == IPCERROR_NONSERIALIZABLE:
+        do, exc = self.__callwrapper('set', name, value, author)
+        if exc.errno == ipcclientxerrors.IPCERROR_NONSERIALIZABLE:
             exc.updatemessage(value)
         if exc.errno != -1:
             self.logexception(exc)
@@ -247,8 +215,8 @@ class IPCClient(IPCClientBase):
         :type do: DataObject(), None
         :type cached: bool
         :type return_tuple: bool
-        :return: Either the stored item or a namedtuple containing the stored item followed by the timestamp(float)
-                 and whether or not the item was returned from the cache
+        :return: Either the stored item or a :py:class:`collections.namedtuple` containing the stored item followed by
+                 the timestamp(float) and whether or not the item was returned from the cache
         :rtype: object or namedtuple('Data', ['value', 'ts', 'cached'])
         """
         if do is not None:
@@ -264,18 +232,25 @@ class IPCClient(IPCClientBase):
         return ret
 
     def __get(self, name, author, requestor, force=False):
-        do, exc = self.__callwrapper(IPCClient.CALL_GET, requestor, name, author, force)
+        do, exc = self.__callwrapper('get', requestor, name, author, force)
         return do, exc
 
     def get(self, name, author=None, requestor=None, return_tuple=False):
         """
-        Retrieves data from the server based on author and variable name, optionally includes time stamp (float) and/or
-        a bool representing whether or not the item came from the local cache.
+        Retrieves data from the server based on author and variable name, optionally returns a
+        :py:func:`namedtuple <collections.namedtuple>` which also includes time stamp (float) and a bool representing
+        whether or not the item came from the local cache.
         There is a caching function implemented such that the server tracks addon requests for data - if the most recent
         version has already been received by the client, a message is sent to the client to look in it's cache for the
         data. There is a fallback such that if the data is NOT in the cache, the server then provides the data. Each
         piece of data that is received is locally cached for this purpose.
-        When ts and/or retiscached is True, the method returns a list instead of the stored variable. See below.
+
+        If returning a :py:func:`namedtuple <collections.namedtuple>`, the parameters can be accessed as follows::
+
+           nt = client.get('x', author='me', requestor='me', return_tuple=True)
+           x = nt.value
+           x_timestamp = nt.ts
+           x_was_cached = nt.cached
 
         :param name: The variable name
         :type name: str
@@ -284,13 +259,14 @@ class IPCClient(IPCClientBase):
         :type author: str
         :param requestor: The name of the requestor of the data. Defaults to the addon name if found. Used for caching
         :type requestor: str
-        :param return_tuple: Whether to return the stored object or a named tuple containg the object, the timestamp
+        :param return_tuple: Whether to return the stored object or a named tuple containing the object, the timestamp
                              and a bool indicating that the object came from the local cache. The named tuple returns
                              the the names value, ts and cached.
         :type return_tuple: bool
-        :return: Either the value(object) assigned to 'name' or a named tuple containing the value, ts and/or if the
-                 item came from the local cache.
-        :rtype: object or namedtuple('Data', ['value', 'ts', 'cached'])
+        :return: Either the value(object) assigned to 'name' or a :py:func:`namedtuple <collections.namedtuple>`
+                 containing the value, ts and/or if the item came from the local cache.
+        :rtype: object or :py:func:`namedtuple <collections.namedtuple>` defined as:
+                ``('Data', ['value', 'ts', 'cached'])``
 
         """
         if author is None:
@@ -299,13 +275,13 @@ class IPCClient(IPCClientBase):
             requestor = self.addonname
         idx = (author, name)
         do, exc = self.__get(name, author, requestor)
-        if exc.errno == IPCERROR_USE_CACHED_COPY:
+        if exc.errno == ipcclientxerrors.IPCERROR_USE_CACHED_COPY:
             if idx in self.cache:
                 do = self.cache[idx]
                 return self.__setreturn(do, cached=True, return_tuple=return_tuple)
             else:  # SHOULD BE IN CACHE, SO FORCE SERVER TO PROVIDE
                 do, exc = self.__get(name, author, requestor, force=True)
-                if exc.errno == IPCERROR_NO_VALUE_FOUND:
+                if exc.errno == ipcclientxerrors.IPCERROR_NO_VALUE_FOUND:
                     exc.varname = name
                     exc.author = author
                 if exc.errno != -1:
@@ -317,7 +293,7 @@ class IPCClient(IPCClientBase):
                 else:
                     self.cache[idx] = do
                     return self.__setreturn(do, return_tuple=return_tuple)
-        elif exc.errno == IPCERROR_NO_VALUE_FOUND:
+        elif exc.errno == ipcclientxerrors.IPCERROR_NO_VALUE_FOUND:
             exc.updatemessage(name, author)
         if exc.errno != -1:
             self.logexception(exc)
@@ -332,20 +308,20 @@ class IPCClient(IPCClientBase):
     def delete(self, name, author=None, return_tuple=False):
         """
         Deletes an item from the datastore and returns the deleted item's value. Returns None if not found or raises
-        an exception if the .raise_exceptions attribute is set to True. The return item is optionally returned as a
-        named tuple (see get definition).
+        an exception if the IPCClientX.raise_exceptions attribute is set to True. The return item is optionally returned
+        as a namedtuple (see :func:`get() <IPCClientX.get>`).
 
         :type name: str
         :type author: __builtin__.NoneType
         :type return_tuple: bool
         :return:
-        :rtype: object or namedtuple('Data', ['value', 'ts', 'cached']), None on failure
+        :rtype: object or :py:func:`namedtuple <collections.namedtuple>`, None on failure
 
         """
         if author is None:
             author = self.addonname
-        do, exc = self.__callwrapper(IPCClient.CALL_DEL, name, author)
-        if exc.errno == IPCERROR_NO_VALUE_FOUND:
+        do, exc = self.__callwrapper('delete', name, author)
+        if exc.errno == ipcclientxerrors.IPCERROR_NO_VALUE_FOUND:
             exc.updatemessage(name, author)
         if exc.errno != -1:
             if self.raise_exception:
@@ -363,13 +339,14 @@ class IPCClient(IPCClientBase):
         """
         Retrieves either a dict or list containing the variables names stored on the server.
 
-        :type author: str or __builtin__.NoneType
+        :param author: The author of the data or object
+        :type author: str or None
         :return: A dictionary containing the authors as key and their variable names as a list. If author specified,
                  returns a list with the variable names. Returns None on failure or raises an exception.
         :rtype: dict or list
 
         """
-        dl, exc = self.__callwrapper(IPCClient.CALL_LST, author)
+        dl, exc = self.__callwrapper('get_data_list', author)
         if exc.errno != -1:
             if self.raise_exception:
                 self.logexception(exc)
@@ -387,7 +364,7 @@ class IPCClient(IPCClientBase):
         :rtype: bool
 
         """
-        do, exc = self.__callwrapper(IPCClient.CALL_CLR)
+        do, exc = self.__callwrapper('clearall')
         self.cache = {}
         if exc.errno != -1:
             if self.raise_exception:
@@ -406,7 +383,7 @@ class IPCClient(IPCClientBase):
         :rtype: bool
 
         """
-        do, exc = self.__callwrapper(IPCClient.CALL_CLC, self.addonname)
+        do, exc = self.__callwrapper('clearcache', self.addonname)
         self.cache = {}
         if exc.errno != -1:
             if self.raise_exception:
@@ -422,7 +399,7 @@ class IPCClient(IPCClientBase):
         Saves all of the data for a given author as a pickle object in the addon_data directory for
         service.ipcdatastore. Plan is to implement a way to do this automatically on server shutdown.
 
-        :type author: str
+        :type author: str or None
         :return: True on success, False on failure
         :rtype: bool
 
@@ -432,8 +409,8 @@ class IPCClient(IPCClientBase):
         path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore')
         fn = '{0}-{1}.p'.format(self.addonname, author)
         fn = os.path.join(path, fn)
-        do, exc = self.__callwrapper(IPCClient.CALL_SAV, author, fn)
-        if exc.errno == IPCERROR_SAVEFAILED:
+        do, exc = self.__callwrapper('savedata', author, fn)
+        if exc.errno == ipcclientxerrors.IPCERROR_SAVEFAILED:
             exc.updatemessage(author, fn)
         if exc.errno != -1:
             if self.raise_exception:
@@ -446,7 +423,7 @@ class IPCClient(IPCClientBase):
 
     def restoredata(self, author=None):
         """
-        Restores data on the server from a previously saved pickle (see above)
+        Restores data on the server from a previously saved pickle (see :func:`savedata() <IPCClientX.savedata>`)
 
         :type author: str
         :return: True on success, False on failure
@@ -458,8 +435,8 @@ class IPCClient(IPCClientBase):
         path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
         fn = os.path.join(path, '{0}-{1}.p'.format(self.addonname, author))
         if xbmcvfs.exists(fn) == 1:
-            do, exc = self.__callwrapper(IPCClient.CALL_RST, author, fn)
-            if exc.errno == IPCERROR_RESTOREFAILED:
+            do, exc = self.__callwrapper('restoredata', author, fn)
+            if exc.errno == ipcclientxerrors.IPCERROR_RESTOREFAILED:
                 exc.updatemessage(author, fn)
             if exc.errno != -1:
                 if self.raise_exception:

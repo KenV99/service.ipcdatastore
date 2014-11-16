@@ -21,16 +21,15 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 
-from resources.lib.ipcclientx import IPCClient
+from resources.lib.ipcclientx import IPCClientX
 
 __settings__ = xbmcaddon.Addon("service.ipcdatastore")
 __language__ = __settings__.getLocalizedString
 
-client = IPCClient(addon_id='service.ipcdatastore')
+client = IPCClientX(addon_id='service.ipcdatastore')
 xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
 dialog = xbmcgui.Dialog()
 if client.server_available():
-    dl = client.get_data_list()
     x = client.get('x', author='service.ipcdatastore', requestor='testclient')
     if x == 20:
         dialog.ok(__language__(32007), __language__(32008))
