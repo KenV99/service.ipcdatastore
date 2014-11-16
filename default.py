@@ -55,20 +55,6 @@ myserver = None
 
 
 def serverstart(data_name='kodi-IPC', host='localhost', port=9099):
-    """
-
-    This function starts the pyro4 server. It runs in a separate thread. See :class:ipc.ipcserver.IPCServer
-
-    :param data_name: Arbitrary name for the data object being shared as a remote object
-    :type data_name: str
-    :param host: Specifies the resolvable hostname or IP address for the socket where the object will be shared.
-    :type host: str
-    :param port: The port for the socket
-    :type port: int
-    :return: None
-
-    """
-
     #    .start() is required since the server is started in a separate thread. This done to prevent
     #    blocking and allow us to call in to stop thread during abort by holding a reference to the server daemon
     #    without doing this, an error is generated in the kodi logfile. The method of polling xbmc.abortrequested
@@ -84,21 +70,6 @@ def testclient():
     #    Obviously the server could be started by one addon and used by two other clients to communicate,
     #    but for demonstration purposes, lets store some data and then retrieve it in the example
     #    'script.ipcclient'
-    #
-    #  IPCClient() takes the same optional keyword args as listed above for IPCServer()
-    #  Obviously you need to configure the client identically to the server for them to talk to one another
-    #  In the example IPCServer, the object that is shared is a simple datastore
-    #  It is designed with the following functions:
-    #     For all calls, a pseudo namespace with the addon name is established to help prevent conflict with
-    #     variable names potentially coming from different addons
-    #  put(addon_name as string, variable_name as string, data)
-    #    This is the simple form of put. data can be any type that can be accepted by the above datatype
-    #  get(addon_name as string, variable_name as string) - returns data and timestamp
-    #  delete(addon_name as string, variable_name as string)
-    #     deletes the individual variable and it's value from the datastore
-    #     returns the last data value and timestamp
-    #  clear_all(addon_name) - deletes all of the data associated with the addon_name
-    #     returns all of the data in a keyword dict
     client = IPCClientX(addon_id='service.ipcdatastore')
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
     client.set('x', 20)
@@ -140,12 +111,6 @@ class PlayerServer(xbmc.Player):
 
 
 class PlayerClient(xbmc.Player):
-    """
-    .. class:: PlayerClient(xbmc.Player)
-
-    Separate Player subclassed from xbmc.Player that would otherwise be instantiated from a different addon
-
-    """
 
     def __init__(self):
         super(PlayerClient, self).__init__()

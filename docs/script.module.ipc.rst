@@ -4,6 +4,9 @@
 script.module.ipc
 *****************
 
+.. highlight:: python
+   :linenothreshold: 6
+
 This addon module's only purpose is to make the contained libraries available to other addons. If you are using
 **service.ipcdatastore** this is a required module for that to run. However, others may want utilize these directly
 in their own addon's module as an import.
@@ -63,13 +66,10 @@ or however you wish. Objects can be shared from the server using the default con
     with the way the server then accesses that object, I highly recommend that the path to the exposed object be placed
     in the PYTHONPATH by using sys.path as shown.
 
-These can be then used on the client, again using the default configuration as:
+These can be then used on the client, again using the default configuration as an example:
 
 ::
 
-    import os
-    import sys
-    import xbmcaddon
     from ipc.ipcclient import IPCClient
 
     myclient = IPCClient()
@@ -83,7 +83,7 @@ until you are sure that everything is working correctly with that object and the
 version.
 
 The above examples do not provide for any exception handling. For a more detailed example with handling of both
-client side and server side errors, see: :class:`ipcclientx.IPCClientX`.
+client side and server side errors, see the actual python file for: :class:`ipcclientx.IPCClientX`.
 
 .. index:: Classes and methods
 

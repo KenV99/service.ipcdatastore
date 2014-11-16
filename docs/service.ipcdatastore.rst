@@ -10,6 +10,9 @@ Add On Settings Page
    :align: left
    :width: 250px
 
+.. highlight:: python
+   :linenothreshold: 5
+
 There are several configurable settings for the addon:
 
    1) The name to be used to address the object being shared. This is an arbitrary string.
@@ -40,15 +43,17 @@ and the code is running under an addon whose id is available, that will be used.
 the code is running from a 'RunScript' statement and an exception will be raised. Each object is time-stamped as it
 is stored.
 
-::
+.. code-block:: python
+   :linenos:
+   :emphasize-lines: 5,7
 
-    01  # Depending where this code is run from the location of the import may differ
-    02
-    03  from resources.lib.ipcclientx import IPCClientX
-    04
-    05  client = IPCClientX(addon_id='service.ipcdatastore')
-    06  if client.server_available():
-    07      x = client.set('x', 20, author='service.ipcdatastore')
+    # Depending where this code is run from the location of the import may differ
+
+    from resources.lib.ipcclientx import IPCClientX
+
+    client = IPCClientX(addon_id='service.ipcdatastore')
+    if client.server_available():
+        x = client.set('x', 20, author='service.ipcdatastore')
 
 On line 5, the client is instantiated using the ``addon_id`` syntax option. This cause the client to read the name,
 host and port settings from the addon whose id is provided. This allows any other addon to discover the server's
@@ -73,24 +78,26 @@ If ``return_tuple`` is False (default) the returned object is of the same 'type'
 ``return_tuple`` if True, the return is a namedtuple with three attributes: *value*, *ts* and *cached*. The *value* is
 the actual object, *ts* is the timestamp (float) and *cached* is a boolean indicating if a cached value was used.
 
-::
+.. code-block:: python
+   :linenos:
+   :emphasize-lines: 7,13-16
 
-    01  # Again, depending where this code is run from the location of the import may differ
-    02
-    03  from resources.lib.ipcclientx import IPCClientX
-    04
-    05  client = IPCClientX(addon_id='service.ipcdatastore')
-    06  if client.server_available():
-    07      x = client.get('x', author='service.ipcdatastore', requestor='testclient')
-    08      xbmc.log("service.ipcdatastore variable 'x' = {0}".format(x))
-    09  else:
-    10      xbmc.log("service.ipcdatastore server unavailable")
-    11
-    12  if client.server_available():
-    13      nt = client.get('x', author='service.ipcdatastore', requestor='testclient', return_tuple=True)
-    14      x = nt.value
-    15      ts = nt.ts
-    16      cached = nt.cached
+    # Again, depending where this code is run from the location of the import may differ
+
+    from resources.lib.ipcclientx import IPCClientX
+
+    client = IPCClientX(addon_id='service.ipcdatastore')
+    if client.server_available():
+        x = client.get('x', author='service.ipcdatastore', requestor='testclient')
+        xbmc.log("service.ipcdatastore variable 'x' = {0}".format(x))
+    else:
+        xbmc.log("service.ipcdatastore server unavailable")
+
+    if client.server_available():
+        nt = client.get('x', author='service.ipcdatastore', requestor='testclient', return_tuple=True)
+        x = nt.value
+        ts = nt.ts
+        cached = nt.cached
 
 
 Line 7 retrieves the data as described above, while lines 13-16 illustrate the use of the namedtuple. The value of
