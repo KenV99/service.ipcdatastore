@@ -8,7 +8,7 @@
     
     <title>Background and Features &mdash; service.ipcdatastore 0.1.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -45,72 +45,7 @@
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">service.ipcdatastore 0.1.0 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="background-and-features">
-<h1>Background and Features<a class="headerlink" href="#background-and-features" title="Permalink to this headline">¶</a></h1>
-<p id="index-0">The addon <strong>service.ipcdatastore</strong> is an example that utilizes the above module (<strong>script.module.ipc</strong>) to create
-a datastore that may be used <em>to tranfer objects/data between different python processes</em>. This serves 1) to
-demonstrate how <strong>script.module.ipc</strong> can be used and 2) to provide a working server that can be used without
-further modification to share data amongst Kodi python addons.</p>
-<p><em>Background:</em> Moving data between python process is somewhat difficult in Kodi. Thankfully, there are relatively
-few situations where this is needed. Examples of these are:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li>A background service needs to provide data to a plugin script invoked by the user. This can be preferable
-in situations where the data gathered by the service is via relatively slow channels (external http scraping)
-and there is an unacceptable delay when the script is invoked.</li>
-<li>A script is invoked by RunScript in keyboard.xml or settings.xml in order to implement a hotkey or make
-make other changes and these changes need to be communicated to a background service.</li>
-<li>The same I/O bound data is required by serveral different processes and it would be more economical to have
-it gathered only once and then retrieved by all.</li>
-</ol>
-</div></blockquote>
-<p>There are a number of possibile ways this type of data sharing may be implemented in Python. Some of these include:</p>
-<blockquote>
-<div><ol class="arabic simple">
-<li>Saving data to a file which can then be read back in from another process</li>
-<li>Saving data to a hidden field in on addon&#8217;s settings.xml which is read by another</li>
-<li>Using shared memory space with mmap</li>
-<li>Using sockets to move data</li>
-</ol>
-</div></blockquote>
-<p>The module <strong>script.module.ipc</strong> contains <strong>Pyro4</strong> packaged for Kodi. Pyro4 stands for Python Remote Objects. The
-author of this package is Irmen de Jong and the original package and it&#8217;s documentation can be found
-at: <a class="reference external" href="https://pythonhosted.org/Pyro4/">https://pythonhosted.org/Pyro4/</a> Pyro4 is coded entirely in Python, making it suitable for potential inclusion in
-the official Kodi repo.</p>
-<p>In brief, Pyro4 uses a socket interface and a serializer. Using this, objects may be moved between processes. How
-complex these objects are is dependent on the serializer. In the implementation provided, <em>pickle</em> is used as the
-default serializer. The main drawback to pickle is that there are security issues, however in the vast majority of
-situations, this will be used exclusively on one machine and these security concerns are moot as long as the
-external firewall keeps the port(s) used from being exposed. On the plus side, of the available serializers, pickle
-is compatible with more complex object types and is the best performing.</p>
-<p>The repository for <strong>script.module.ipc</strong> contains a lib folder with a directory for Pyro4 (made lower case for
-official repo compatibility) and a module directory called <em>ipc</em> which contains two lightweight classes that can
-be imported to use pyro4 with a specified port to share and access objects. The details of these two lightweight
-classes are detailed below, followed by some code examples with explanation.</p>
-<div class="section" id="features-of-service-ipcdatastore">
-<span id="index-1"></span><h2>Features of service.ipcdatastore<a class="headerlink" href="#features-of-service-ipcdatastore" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li>Share data(objects) with minimal additional coding</li>
-<li>Optionally start the server with Kodi</li>
-<li>Configurable host and port</li>
-<li>Utilizes a combined server/client caching mechanism for improved performance</li>
-<li>Tests run at the time of startup and additional tests via the settings page</li>
-<li>Optionally automatically place video info on the server each time a file or stream plays</li>
-</ul>
-</div>
-</div>
-
-
-          </div>
-        </div>
-      </div>
+    </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
@@ -147,6 +82,71 @@ classes are detailed below, followed by some code examples with explanation.</p>
     </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="background-and-features">
+<h1>Background and Features<a class="headerlink" href="#background-and-features" title="Permalink to this headline">¶</a></h1>
+<p id="index-0">The addon <strong>service.ipcdatastore</strong> is utilizes the module (<strong>script.module.ipc</strong>) to create
+a datastore that may be used <em>to transfer objects/data between different python processes</em>. This serves 1) to
+demonstrate how <strong>script.module.ipc</strong> can be used and 2) to provide a working server that can be used without
+further modification to share data amongst Kodi python addons.</p>
+<p><em>Background:</em> Moving data between python process is somewhat difficult in Kodi. Thankfully, there are relatively
+few situations where this is needed. Examples of these are:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>A background service needs to provide data to a plugin script invoked by the user. This can be preferable
+in situations where the data gathered by the service is via relatively slow channels (external http scraping)
+and there is an unacceptable delay when the script is invoked.</li>
+<li>A script is invoked by RunScript in keyboard.xml or settings.xml in order to implement a hotkey or make
+make other changes and these changes need to be communicated to a background service.</li>
+<li>The same I/O bound data is required by several different processes and it would be more economical to have
+it gathered only once and then retrieved by all.</li>
+</ol>
+</div></blockquote>
+<p>There are a number of possible ways this type of data sharing may be implemented in Python. Some of these include:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Saving data to a file which can then be read back in from another process</li>
+<li>Saving data to a hidden field in on addon&#8217;s settings.xml which is read by another</li>
+<li>Using shared memory space with mmap</li>
+<li>Using sockets to move data with a simple python dict for volatile data or a sql based backend for storage.</li>
+</ol>
+</div></blockquote>
+<p>The module <strong>script.module.ipc</strong> contains <strong>Pyro4</strong> packaged for Kodi. Pyro4 stands for Python Remote Objects. The
+author of this package is Irmen de Jong and the original package and it&#8217;s documentation can be found
+at: <a class="reference external" href="https://pythonhosted.org/Pyro4/">https://pythonhosted.org/Pyro4/</a> Pyro4 is coded entirely in Python, making it suitable for potential inclusion in
+the official Kodi repo.</p>
+<p>In brief, Pyro4 provides a socket interface and a serializer to allow interprocess communication. Using these, objects
+may be moved between processes. How complex these objects are is dependent on the serializer. In the implementation
+provided, <em>pickle</em> is used as the default serializer. The main drawback to pickle is that there are security issues,
+however in the vast majority of situations, this will be used exclusively on one machine and these security concerns
+are moot as long as the external firewall keeps the port(s) used from being exposed. On the plus side, of the available
+serializers, pickle is compatible with more complex object types and is the best performing.</p>
+<p>The addon directory for <strong>script.module.ipc</strong> contains a lib folder with a directory for Pyro4 (made lower case for
+official repo compatibility) and a module directory called <em>ipc</em> which contains two lightweight classes that can
+be imported to use pyro4 with a specified port to share and access objects. The details of these two lightweight
+classes and coding examples can be found <a class="reference internal" href="script.module.ipc.html#script-module-ipc"><em>here</em></a>.</p>
+<div class="section" id="features-of-service-ipcdatastore">
+<span id="index-1"></span><h2>Features of service.ipcdatastore<a class="headerlink" href="#features-of-service-ipcdatastore" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Share data (objects) with minimal additional coding</li>
+<li>Optionally start the server with Kodi</li>
+<li>Configurable host and port</li>
+<li>Utilizes a combined server/client caching mechanism for improved performance</li>
+<li>Tests run at the time of startup and additional tests via the settings page</li>
+<li>Optionally automatically place video info on the server each time a file or stream plays</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
         </div>
       </div>
       <div class="clearer"></div>

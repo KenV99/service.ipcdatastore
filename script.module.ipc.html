@@ -8,7 +8,7 @@
     
     <title>script.module.ipc &mdash; service.ipcdatastore 0.1.0 documentation</title>
     
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
@@ -45,7 +45,45 @@
              accesskey="P">previous</a> |</li>
         <li><a href="index.html">service.ipcdatastore 0.1.0 documentation</a> &raquo;</li> 
       </ul>
-    </div>  
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">script.module.ipc</a><ul>
+<li><a class="reference internal" href="#module-ipcserver">Classes and class methods from script.module.ipc</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="background.html"
+                        title="previous chapter">Background and Features</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="service.ipcdatastore.html"
+                        title="next chapter">service.ipcdatastore</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/script.module.ipc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
 
     <div class="document">
       <div class="documentwrapper">
@@ -53,13 +91,96 @@
           <div class="body" role="main">
             
   <div class="section" id="script-module-ipc">
-<h1>script.module.ipc<a class="headerlink" href="#script-module-ipc" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h1>script.module.ipc<a class="headerlink" href="#script-module-ipc" title="Permalink to this headline">¶</a></h1>
+<p>This addon module&#8217;s only purpose is to make the contained libraries available to other addons. If you are using
+<strong>service.ipcdatastore</strong> this is a required module for that to run. However, others may want utilize these directly
+in their own addon&#8217;s module as an import.</p>
+<p>The lib folder for this module contains two folders:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>pyro4</li>
+<li>ipc</li>
+</ol>
+</div></blockquote>
+<p>If the script.module.ipc directory is in Kodi&#8217;s addon directory, the included addon.xml <em>should</em> make the contents
+available to other addons as long as script.module.ipc is included in the <em>other</em> addon&#8217;s addon.xml under the &#8216;requires&#8217;
+tag:</p>
+<div class="highlight-python"><div class="highlight"><pre>&lt;requires&gt;
+  &lt;import addon=&quot;xbmc.python&quot; version=&quot;2.1.0&quot;/&gt;
+  ...
+  &lt;import addon=&quot;script.module.ipc&quot; version=&quot;0.1.0&quot; /&gt;
+&lt;/requires&gt;
+</pre></div>
+</div>
+<p>pyro4 should be imported simply as <code class="docutils literal"><span class="pre">import</span> <span class="pre">pyro4</span></code></p>
+<p>There are two modules in the ipc directory. These are included to set up a simple server or client using a specified
+host and port. Pyro4 contains the libraries needed to use a nameserver and random ports, but for simplicity sake these
+helper classes do not utilize a nameserver. They are meant to be imported as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ipc.ipcserver</span> <span class="kn">import</span> <span class="n">IPCServer</span>
+<span class="kn">from</span> <span class="nn">ipc.ipcclient</span> <span class="kn">import</span> <span class="n">IPCClient</span>
+</pre></div>
+</div>
+<p>or however you wish. Objects can be shared from the server using the default configuration as simply as:
+(see below for details of the default configuration)</p>
+<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">xbmcaddon</span>
+<span class="kn">from</span> <span class="nn">ipc.ipcserver</span> <span class="kn">import</span> <span class="n">IPCServer</span>
+
+<span class="c"># see the note below about the following 3 lines</span>
+<span class="n">path_to_shared_obj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xbmcaddon</span><span class="o">.</span><span class="n">Addon</span><span class="p">(</span><span class="s">&#39;insert addon name here&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">getAddonInfo</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">),</span> <span class="s">&#39;resources&#39;</span><span class="p">,</span> <span class="s">&#39;lib&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">path_to_shared_obj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_to_shared_obj</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">MyObjectToBeShared</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">MyObjectToBeShared</span><span class="p">()</span>
+<span class="n">myserver</span> <span class="o">=</span> <span class="n">IPCServer</span><span class="p">(</span><span class="n">expose_obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
+<span class="n">myserver</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When starting the server, the module that contains the object to be shared is imported. To prevent potential issues
+with the way the server then accesses that object, I highly recommend that the path to the exposed object be placed
+in the PYTHONPATH by using sys.path as shown.</p>
+</div>
+<p>These can be then used on the client, again using the default configuration as an example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ipc.ipcclient</span> <span class="kn">import</span> <span class="n">IPCClient</span>
+
+<span class="n">myclient</span> <span class="o">=</span> <span class="n">IPCClient</span><span class="p">()</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">myclient</span><span class="o">.</span><span class="n">get_exposed_object</span><span class="p">()</span>
+<span class="n">myvalue</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">mymethod</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>As can be seen in the example above, for the client, it not necessary to import the class of the exposed object.
+However, during initial development, it is recommended that the actual class is imported and instantiated instead of using
+<code class="docutils literal"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">myclient.get_exposed_object()</span></code>
+until you are sure that everything is working correctly with that object and then switching over to using the server
+version.</p>
+<p>The above examples do not provide for any exception handling. For a more detailed example with handling of both
+client side and server side errors, see the actual python file for: <a class="reference internal" href="service.ipcdatastore.html#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">ipcclientx.IPCClientX</span></code></a>.</p>
 <div class="section" id="module-ipcserver">
-<span id="classes-and-methods-from-script-module-ipc"></span><span id="index-0"></span><h2>Classes and methods from script.module.ipc<a class="headerlink" href="#module-ipcserver" title="Permalink to this headline">¶</a></h2>
+<span id="classes-and-class-methods-from-script-module-ipc"></span><span id="index-0"></span><h2>Classes and class methods from script.module.ipc<a class="headerlink" href="#module-ipcserver" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ipcserver.IPCServer">
-<em class="property">class </em><code class="descclassname">ipcserver.</code><code class="descname">IPCServer</code><span class="sig-paren">(</span><em>expose_obj</em>, <em>host='localhost'</em>, <em>name='kodi-IPC'</em>, <em>port=9099</em>, <em>serializer='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes all parameters needed to start the server using a specifically named server and port.
+<em class="property">class </em><code class="descclassname">ipcserver.</code><code class="descname">IPCServer</code><span class="sig-paren">(</span><em>expose_obj</em>, <em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>serializer='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/threading.html#threading.Thread" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></a></p>
+<p>Initializes all parameters needed to start the server using a specifically named server and port.
 (pyro4 allows for the use of a nameserver if desired. Details at: <a class="reference external" href="https://pythonhosted.org/Pyro4/index.html">https://pythonhosted.org/Pyro4/index.html</a>)
 Inherits from threading so that an EXTERNAL event loop can be used to exit gracefully when Kodi is shutting down
 by calling the stop() method. Note that if you plan to run more than one server, you should specify &#8216;name&#8217; and
@@ -70,8 +191,8 @@ by calling the stop() method. Note that if you plan to run more than one server,
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>expose_obj</strong> (<em>object or classic class</em>) &#8211; This is the python object whose methods will be exposed to the clients</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The arbitrary name used by the socket protocol for this datastore</li>
 <li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The host that will be used for the server</li>
-<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name used by the socket protocol for this datastore</li>
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port for the socket used</li>
 <li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The serialization protocol to be used. Options: pickle, serpent, marshall, json</li>
 </ul>
@@ -96,7 +217,8 @@ hits daemon.requestLoop().</p>
 <dl class="staticmethod">
 <dt id="ipcserver.IPCServer.test_pickle">
 <em class="property">static </em><code class="descname">test_pickle</code><span class="sig-paren">(</span><em>test_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.test_pickle" title="Permalink to this definition">¶</a></dt>
-<dd><p>Tests whether an object or instance is pickleable (serializable for default server sharing protocol).</p>
+<dd><p>A convenience function that tests whether an object or instance can be pickled (serializable for default server
+sharing protocol).</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -116,7 +238,7 @@ hits daemon.requestLoop().</p>
 <span class="target" id="module-ipcclient"></span><dl class="class">
 <dt id="ipcclient.IPCClient">
 <em class="property">class </em><code class="descclassname">ipcclient.</code><code class="descname">IPCClient</code><span class="sig-paren">(</span><em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>datatype='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initializes the client to use a named proxy for datacommunication with the server. The method &#8216;get_data_object&#8217;
+<dd><p>Initializes the client to use a named proxy for data communication with the server. The method &#8216;get_data_object&#8217;
 should be invoked just before running a server based method and then destroyed promptly to prevent running out
 of data sockets on the server and preventing dropped connections. This can be done by dropping out of context
 and need not be done explicitly. See pyro4 docs at <a class="reference external" href="https://pythonhosted.org/Pyro4/index.html">https://pythonhosted.org/Pyro4/index.html</a> for details.</p>
@@ -149,22 +271,6 @@ and need not be done explicitly. See pyro4 docs at <a class="reference external"
 </table>
 </dd></dl>
 
-<dl class="staticmethod">
-<dt id="ipcclient.IPCClient.get_traceback">
-<em class="property">static </em><code class="descname">get_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.get_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Useful for errors that occur within the logic of the shared object</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A detailed traceback of the last error</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="ipcclient.IPCClient.server_available">
 <code class="descname">server_available</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.server_available" title="Permalink to this definition">¶</a></dt>
@@ -181,55 +287,30 @@ and need not be done explicitly. See pyro4 docs at <a class="reference external"
 </table>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="ipcclient.IPCClient.get_traceback">
+<em class="property">static </em><code class="descname">get_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient.get_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Useful for exceptions that occur within the logic of the shared object. The normal system traceback will not be
+informative for these types of errors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A detailed traceback of the last error</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
-</div>
-<div class="section" id="example-usage-of-ipcserver-and-ipclient">
-<span id="index-1"></span><h2>Example usage of ipcserver and ipclient<a class="headerlink" href="#example-usage-of-ipcserver-and-ipclient" title="Permalink to this headline">¶</a></h2>
+</dd></dl>
+
 </div>
 </div>
 
 
           </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">script.module.ipc</a><ul>
-<li><a class="reference internal" href="#module-ipcserver">Classes and methods from script.module.ipc</a></li>
-<li><a class="reference internal" href="#example-usage-of-ipcserver-and-ipclient">Example usage of ipcserver and ipclient</a></li>
-</ul>
-</li>
-</ul>
-
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="background.html"
-                        title="previous chapter">Background and Features</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="service.ipcdatastore.html"
-                        title="next chapter">service.ipcdatastore</a></p>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/script.module.ipc.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
