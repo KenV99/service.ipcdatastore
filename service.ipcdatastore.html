@@ -44,6 +44,9 @@
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/icon.png" alt="Logo"/>
+            </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">service.ipcdatastore</a><ul>
@@ -52,8 +55,8 @@
 <li><a class="reference internal" href="#caching-mechanism">Caching mechanism</a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#advanved-usage-of-ipcclientx">Advanved usage of IPCClientX</a></li>
-<li><a class="reference internal" href="#class-methods-from-service-ipcdatastore">Class methods from service.ipcdatastore</a></li>
+<li><a class="reference internal" href="#module-ipcclientx">Class methods from service.ipcdatastore</a></li>
+<li><a class="reference internal" href="#module-ipcclientxerrors">Custom Exceptions</a></li>
 </ul>
 </li>
 </ul>
@@ -93,7 +96,7 @@
 <h1>service.ipcdatastore<a class="headerlink" href="#service-ipcdatastore" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="add-on-settings-page">
 <h2>Add On Settings Page<a class="headerlink" href="#add-on-settings-page" title="Permalink to this headline">¶</a></h2>
-<a class="reference internal image-reference" href="_images/ipc-settings.png"><img alt="_images/ipc-settings.png" class="align-left" src="_images/ipc-settings.png" style="width: 250px;" /></a>
+<a class="reference internal image-reference" href="_images/ipc-settings.png"><img alt="_images/ipc-settings.png" class="align-left" src="_images/ipc-settings.png" style="width: 300px;" /></a>
 <p>There are several configurable settings for the addon:</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -102,14 +105,22 @@
 <li>The socket port.</li>
 <li>Whether to start the server at startup.</li>
 <li>A simple test to assess if the server is working correctly which runs on clicking.</li>
-<li>Whether or not to place data regarding the currently playing video in the datastore automatically.</li>
-<li>Whether or not to show the above data as a notification when a video begins playing.</li>
+<li>Demo: Whether or not to place data regarding the currently playing video in the datastore automatically.</li>
+<li>Demo: Whether or not to show the above data as a notification when a video begins playing.</li>
 <li>A more detailed testing suite for the datastore object&#8217;s methods which runs when clicked.</li>
 </ol>
 </div></blockquote>
-<p><strong>Note:</strong> When using the class IPCClientX (described below) if the addon id is specified, an attempt will be made to
-retrieve the object name, host name and port from that addon&#8217;s settings.xml. Thus, if <code class="docutils literal"><span class="pre">addon_id='service.ipcdatastore'</span></code>
-is provided, then these settings will be read in, even if the code is running in another addon.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Changes to any setting require you to click &#8216;OK&#8217; and exit back out of settings to take effect.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">When using the class IPCClientX (described <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">below</span></code></a>) if the addon id is specified, an attempt will be made to
+retrieve the object name, host name and port from that addon&#8217;s settings.xml. Thus, if
+<code class="docutils literal"><span class="pre">addon_id='service.ipcdatastore'</span></code> is provided, then these settings will be read in, even if the code is running
+in another addon.</p>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="simple-use-case-of-ipcclientx">
@@ -117,7 +128,7 @@ is provided, then these settings will be read in, even if the code is running in
 <p>IPCClientX is really a class that wraps some core functionality of a shared dictionary object. Objects are stored in
 the dictionary under a key consisting of the object&#8217;s &#8220;name&#8221; and &#8220;author&#8221;. This was implemented in this manner to
 prevent naming conflicts if serveral different addons are placing objects in the datastore.</p>
-<p>The name is required at the time that the data is stored using :func: <cite>IPCClientX.set</cite>. If the author is not provided
+<p>The name is required at the time that the data is stored using <a class="reference internal" href="#ipcclientx.IPCClientX.set" title="ipcclientx.IPCClientX.set"><code class="xref py py-func docutils literal"><span class="pre">ipcclientx.IPCClientX.set()</span></code></a>. If the author is not provided
 and the code is running under an addon whose id is available, that will be used. No addon id will be available when
 the code is running from a &#8216;RunScript&#8217; statement and an exception will be raised. Each object is time-stamped as it
 is stored.</p>
@@ -131,18 +142,18 @@ is stored.</p>
 
  <span class="kn">from</span> <span class="nn">resources.lib.ipcclientx</span> <span class="kn">import</span> <span class="n">IPCClientX</span>
 
-<span class="hll"> <span class="n">client</span> <span class="o">=</span> <span class="n">IPCClientX</span><span class="p">(</span><span class="n">addon_id</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
-</span> <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">server_available</span><span class="p">():</span>
-<span class="hll">     <span class="n">x</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
-</span></pre></div>
+ <span class="n">client</span> <span class="o">=</span> <span class="n">IPCClientX</span><span class="p">(</span><span class="n">addon_id</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
+ <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">server_available</span><span class="p">():</span>
+     <span class="n">x</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
+</pre></div>
 </td></tr></table></div>
 <p>On line 5, the client is instantiated using the <code class="docutils literal"><span class="pre">addon_id</span></code> syntax option. This cause the client to read the name,
 host and port settings from the addon whose id is provided. This allows any other addon to discover the server&#8217;s
 settings at the time of instantiation instead of having to hard code it.</p>
-<p>Line 6 first checks to see if the server is available using the inherited method from IPCClient from script.module.ipc.
-This isn&#8217;t truly necessary, but provides a graceful means of failure if the server is not up.</p>
-<p>Line 7 then stores the object, in this case, an integer using the name &#8216;x&#8217;. The author is explicitly given using a
-keyword.</p>
+<p>Line 6 first checks to see if the server is available using the <a class="reference internal" href="script.module.ipc.html#ipcclient.IPCClient.server_available" title="ipcclient.IPCClient.server_available"><code class="xref py py-func docutils literal"><span class="pre">inherited</span> <span class="pre">method</span></code></a>
+from IPCClient from script.module.ipc. This isn&#8217;t truly necessary, but provides a graceful means of failure if the server is not up.</p>
+<p>Line 7 then stores the object using the <a class="reference internal" href="#ipcclientx.IPCClientX.set" title="ipcclientx.IPCClientX.set"><code class="xref py py-func docutils literal"><span class="pre">set</span> <span class="pre">method</span></code></a>, in this case, an integer using
+the name &#8216;x&#8217;. The author is explicitly given using a keyword (optional).</p>
 <hr class="docutils" />
 <dl class="docutils">
 <dt>Retrieving the data is much as expected except that there are two additional optional keyword parameters:</dt>
@@ -172,136 +183,46 @@ the actual object, <em>ts</em> is the timestamp (float) and <em>cached</em> is a
 13
 14
 15
-16</pre></div></td><td class="code"><div class="highlight"><pre> <span class="c"># Again, depending where this code is run from the location of the import may differ</span>
+16
+17</pre></div></td><td class="code"><div class="highlight"><pre> <span class="c"># Again, depending where this code is run from the location of the import may differ</span>
 
+ <span class="kn">import</span> <span class="nn">xbmc</span>
  <span class="kn">from</span> <span class="nn">resources.lib.ipcclientx</span> <span class="kn">import</span> <span class="n">IPCClientX</span>
 
  <span class="n">client</span> <span class="o">=</span> <span class="n">IPCClientX</span><span class="p">(</span><span class="n">addon_id</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
  <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">server_available</span><span class="p">():</span>
-<span class="hll">     <span class="n">x</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">requestor</span><span class="o">=</span><span class="s">&#39;testclient&#39;</span><span class="p">)</span>
-</span>     <span class="n">xbmc</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;service.ipcdatastore variable &#39;x&#39; = {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+     <span class="n">x</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">requestor</span><span class="o">=</span><span class="s">&#39;testclient&#39;</span><span class="p">)</span>
+     <span class="n">xbmc</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;service.ipcdatastore variable &#39;x&#39; = {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
  <span class="k">else</span><span class="p">:</span>
      <span class="n">xbmc</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;service.ipcdatastore server unavailable&quot;</span><span class="p">)</span>
 
  <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">server_available</span><span class="p">():</span>
-<span class="hll">     <span class="n">nt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">requestor</span><span class="o">=</span><span class="s">&#39;testclient&#39;</span><span class="p">,</span> <span class="n">return_tuple</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</span><span class="hll">     <span class="n">x</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">value</span>
-</span><span class="hll">     <span class="n">ts</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">ts</span>
-</span><span class="hll">     <span class="n">cached</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">cached</span>
-</span></pre></div>
+     <span class="n">nt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">requestor</span><span class="o">=</span><span class="s">&#39;testclient&#39;</span><span class="p">,</span> <span class="n">return_tuple</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+     <span class="n">x</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">value</span>
+     <span class="n">ts</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">ts</span>
+     <span class="n">cached</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">cached</span>
+</pre></div>
 </td></tr></table></div>
-<p>Line 7 retrieves the data as described above, while lines 13-16 illustrate the use of the namedtuple. The value of
-cached is provided mostly for testing purposes. The way the cache is implemented, there should be no circumstances
-where a cached object has become &#8216;stale&#8217;. See below.</p>
+<p>Line 8 retrieves the data using <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">get</span></code></a> as described above, while lines 14-17 illustrate the
+use of the namedtuple. The value of <code class="docutils literal"><span class="pre">cached</span></code> is provided mostly for testing purposes. With the caching algorithm used,
+there should be no circumstances where a cached object has become &#8216;stale&#8217;. See below.</p>
+<p>The full set of methods for IPCClientX available are in the documentation <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">below</span></code></a>.</p>
 <div class="section" id="caching-mechanism">
 <h3>Caching mechanism<a class="headerlink" href="#caching-mechanism" title="Permalink to this headline">¶</a></h3>
-<p>Each time data is retrieved, the requestor and the ts of the data requested are stored on the server side. The data is
-also stored on the client side. Also, at the time of each request, the server looks to see if the data has already been
-provided to the current requestor and if so, if the current data timestamp is the same as what was provided to the
-requestor during the last request. If it is, a one-byte message is returned instead of the object instructing the client
-to look for the data in it&#8217;s own local cache. If for some reason, the data is NOT in the local cache, another request
-is sent with a tag instructing the server to provide the data regardless.</p>
+<p>Each time data is retrieved, the requestor and the timestamp of the data requested are stored on the server side. The
+data is also stored on the client side. Also, at the time of each request, the server looks to see if the data has
+already been provided to the current requestor and if so, if the current data timestamp is the same as what was provided
+to the requestor during the last request. If it is, a one-byte message is returned instead of the object instructing the
+client to look for the data in it&#8217;s own local cache. If for some reason, the data is NOT in the local cache, another
+request is sent with a tag instructing the server to provide the data regardless.</p>
 <p>This was implemented for performance purposes to minimize the amount of the data sent &#8216;over-the-wire&#8217;. In addition when
 there is asynchronous data being provided and consumed, it will allow a consuming client to wait in a request loop
-without transferring data with each request. This is illustrated in the following example.</p>
+without transferring the full data set with each request, for instance, if the client is waiting for new data. As might
+be expected, the impact of caching in this manner is small for small object sizes.</p>
 </div>
 </div>
-<div class="section" id="advanved-usage-of-ipcclientx">
-<h2>Advanved usage of IPCClientX<a class="headerlink" href="#advanved-usage-of-ipcclientx" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18</pre></div></td><td class="code"><div class="highlight"><pre>import xbmc
-from getlog...
-
-class PlayerServer(xbmc.Player):
-
-    def __init__(self):
-        super(PlayerServer, self).__init__()
-        self.playingfile = None
-        self.server_flag = False
-
-    def onPlayBackStarted(self):
-        self.playingfile = self.getPlayingFile()
-        mydict = get_log_mediainfo()
-        client = IPCClientX(addon_id=&#39;service.ipcdatastore&#39;)
-        client.raise_exception = True
-        client.set(&#39;videodata&#39;, mydict, author=&#39;service.ipcdatastore&#39;)
-        self.server_flag = True
-        del client
-</pre></div>
-</td></tr></table></div>
-<p>xxx</p>
-<div class="highlight-python"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre> 1
- 2
- 3
- 4
- 5
- 6
- 7
- 8
- 9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">xbmc</span>
-<span class="k">class</span> <span class="nc">PlayerClient</span><span class="p">(</span><span class="n">xbmc</span><span class="o">.</span><span class="n">Player</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">PlayerClient</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">playingfile</span> <span class="o">=</span> <span class="bp">None</span>
-
-    <span class="k">def</span> <span class="nf">onPlayBackStarted</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">playingfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPlayingFile</span><span class="p">()</span>
-        <span class="n">client</span> <span class="o">=</span> <span class="n">IPCClientX</span><span class="p">(</span><span class="n">addon_id</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="n">numchecks</span> <span class="o">=</span> <span class="mi">8</span>
-        <span class="k">while</span> <span class="n">numchecks</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;videodata&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="n">xbmc</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
-                <span class="n">numchecks</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="n">dialog</span> <span class="o">=</span> <span class="n">xbmcgui</span><span class="o">.</span><span class="n">Dialog</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s">&#39;{0}x{1} @ {2}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s">&#39;dwidth&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;dheight&#39;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s">&#39;fps&#39;</span><span class="p">])</span>
-            <span class="n">dialog</span><span class="o">.</span><span class="n">notification</span><span class="p">(</span><span class="s">&#39;ipcdatastore&#39;</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">dialog</span><span class="o">.</span><span class="n">notification</span><span class="p">(</span><span class="s">&#39;ipcdatastore&#39;</span><span class="p">,</span> <span class="s">&#39;Time out error receiving data x {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="mi">9</span> <span class="o">-</span> <span class="n">numchecks</span><span class="p">),</span>
-                                <span class="bp">None</span><span class="p">,</span> <span class="mi">2000</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-</pre></div>
-</td></tr></table></div>
-</div>
-<div class="section" id="class-methods-from-service-ipcdatastore">
-<h2>Class methods from service.ipcdatastore<a class="headerlink" href="#class-methods-from-service-ipcdatastore" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-ipcclientx">
+<span id="class-methods-from-service-ipcdatastore"></span><h2>Class methods from service.ipcdatastore<a class="headerlink" href="#module-ipcclientx" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ipcclientx.IPCClientX">
 <em class="property">class </em><code class="descclassname">ipcclientx.</code><code class="descname">IPCClientX</code><span class="sig-paren">(</span><em>addon_id=''</em>, <em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>datatype='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX" title="Permalink to this definition">¶</a></dt>
@@ -312,10 +233,10 @@ class PlayerServer(xbmc.Player):
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>addon_id</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If specified, this supersedes the name/port/host. Checks settings.xml for the info.</li>
-<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Arbitrary name for the object being used, must match the name used by server</li>
-<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Port matching server port</li>
-<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
+<li><strong>addon_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. If specified, this supersedes the name/port/host. IPCClient checks settings.xml for the info.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Arbitrary name for the object being used, must match the name used by server</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. Port matching server port</li>
+<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
 </ul>
 </td>
 </tr>
@@ -348,16 +269,16 @@ class PlayerServer(xbmc.Player):
 <dt id="ipcclientx.IPCClientX.set">
 <code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets a value on the server. Automatically adds the addon name as the author. The value is any valid object
-that can be accepted by the chosen datatype (see <code class="xref py py-class docutils literal"><span class="pre">above</span></code>). If the class attribute raise_exception is True,
+that can be accepted by the chosen datatype (see <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">above</span></code></a>). If the class attribute raise_exception is True,
 will raise an exception with failure.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<em>Any object type compatible with the datatype transport</em>) &#8211; The variable name</li>
-<li><strong>value</strong> &#8211; The value of the variable</li>
-<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The originator of the data which along with the variable name is used as the primary key
+<li><strong>name</strong> (<em>Any object type compatible with the datatype transport</em>) &#8211; <em>Required</em>. The variable name</li>
+<li><strong>value</strong> &#8211; <em>Required</em>. The value of the variable</li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The originator of the data which along with the variable name is used as the primary key
 for the backend dictionary for storing the item</li>
 </ul>
 </td>
@@ -376,13 +297,13 @@ for the backend dictionary for storing the item</li>
 <dt id="ipcclientx.IPCClientX.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>name</em>, <em>author=None</em>, <em>requestor=None</em>, <em>return_tuple=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieves data from the server based on author and variable name, optionally returns a
-<a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a> which also includes time stamp (float) and a bool representing
+<a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a> which also includes time stamp (float) and a bool representing
 whether or not the item came from the local cache.
 There is a caching function implemented such that the server tracks addon requests for data - if the most recent
 version has already been received by the client, a message is sent to the client to look in it&#8217;s cache for the
 data. There is a fallback such that if the data is NOT in the cache, the server then provides the data. Each
 piece of data that is received is locally cached for this purpose.</p>
-<p>If returning a <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, the parameters can be accessed as follows:</p>
+<p>If returning a <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, the parameters can be accessed as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">nt</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;me&#39;</span><span class="p">,</span> <span class="n">requestor</span><span class="o">=</span><span class="s">&#39;me&#39;</span><span class="p">,</span> <span class="n">return_tuple</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">value</span>
 <span class="n">x_timestamp</span> <span class="o">=</span> <span class="n">nt</span><span class="o">.</span><span class="n">ts</span>
@@ -394,21 +315,21 @@ piece of data that is received is locally cached for this purpose.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The variable name</li>
-<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The author of the data. All of the data is indexed by author and variable name in order to reduce
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Required</em>. The variable name</li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The author of the data. All of the data is indexed by author and variable name in order to reduce
 variable name overlap. If not supplied, the addon name is used.</li>
-<li><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The name of the requestor of the data. Defaults to the addon name if found. Used for caching</li>
-<li><strong>return_tuple</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Whether to return the stored object or a named tuple containing the object, the timestamp
+<li><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The name of the requestor of the data. Defaults to the addon name if found. Used for caching</li>
+<li><strong>return_tuple</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; <em>Optional keyword</em>. Whether to return the stored object or a named tuple containing the object, the timestamp
 and a bool indicating that the object came from the local cache. The named tuple returns
 the the names value, ts and cached.</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Either the value(object) assigned to &#8216;name&#8217; or a <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Either the value(object) assigned to &#8216;name&#8217; or a <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>
 containing the value, ts and/or if the item came from the local cache.</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">object or <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a> defined as:
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">object or <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a> defined as:
 <code class="docutils literal"><span class="pre">('Data',</span> <span class="pre">['value',</span> <span class="pre">'ts',</span> <span class="pre">'cached'])</span></code></p>
 </td>
 </tr>
@@ -421,17 +342,15 @@ containing the value, ts and/or if the item came from the local cache.</p>
 <code class="descname">delete</code><span class="sig-paren">(</span><em>name</em>, <em>author=None</em>, <em>return_tuple=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes an item from the datastore and returns the deleted item&#8217;s value. Returns None if not found or raises
 an exception if the IPCClientX.raise_exceptions attribute is set to True. The return item is optionally returned
-as a namedtuple (see <code class="xref py py-func docutils literal"><span class="pre">get()</span></code>).</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">object or <a class="reference external" href="http://docs.python.org/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, None on failure</td>
-</tr>
-</tbody>
-</table>
+as a namedtuple (see <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">get()</span></code></a>).
+:param name: <em>Required</em>. The name of the variable to be deleted.
+:type name: str
+:param author: <em>Optional keyword</em>. The author of the data. Defaults to the addon id.
+:type author:
+:param return_tuple: <em>Optional keyword</em>. Flag to return data as namedtuple as in <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">ipcclientx.IPCClientX.get()</span></code></a>
+:type return_tuple: bool
+:return:
+:rtype: object or <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, None on failure</p>
 </dd></dl>
 
 <dl class="method">
@@ -442,7 +361,7 @@ as a namedtuple (see <code class="xref py py-func docutils literal"><span class=
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<em>str or None</em>) &#8211; The author of the data or object</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<em>str or None</em>) &#8211; <em>Optional keyword</em>. The author of the data or object</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing the authors as key and their variable names as a list. If author specified,
 returns a list with the variable names. Returns None on failure or raises an exception.</td>
@@ -494,9 +413,11 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<em>str or None</em>) &#8211; <em>Optional keyword</em>. Defaults to addon id.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -505,14 +426,16 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 <dl class="method">
 <dt id="ipcclientx.IPCClientX.restoredata">
 <code class="descname">restoredata</code><span class="sig-paren">(</span><em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.restoredata" title="Permalink to this definition">¶</a></dt>
-<dd><p>Restores data on the server from a previously saved pickle (see <code class="xref py py-func docutils literal"><span class="pre">savedata()</span></code>)</p>
+<dd><p>Restores data on the server from a previously saved pickle (see <a class="reference internal" href="#ipcclientx.IPCClientX.savedata" title="ipcclientx.IPCClientX.savedata"><code class="xref py py-func docutils literal"><span class="pre">savedata()</span></code></a>)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The author whose data is to be restored. Defaults to addon id.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -520,7 +443,125 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 
 </dd></dl>
 
-<span class="target" id="index-0"></span></div>
+</div>
+<div class="section" id="module-ipcclientxerrors">
+<span id="custom-exceptions"></span><h2>Custom Exceptions<a class="headerlink" href="#module-ipcclientxerrors" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="ipcclientxerrors.IPCClientError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">IPCClientError</code><a class="headerlink" href="#ipcclientxerrors.IPCClientError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/exceptions.html#exceptions.Exception" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></a></p>
+<p>Base class for other exception classes</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.VarNotFoundError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">VarNotFoundError</code><a class="headerlink" href="#ipcclientxerrors.VarNotFoundError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when the author/variable name combination is not found on the server</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Variables:</th><td class="field-body"><strong>message</strong> &#8211; Error message containing the author and variable name, if set</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="ipcclientxerrors.VarNotFoundError.updatemessage">
+<code class="descname">updatemessage</code><span class="sig-paren">(</span><em>varname</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientxerrors.VarNotFoundError.updatemessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows updating .message if at the time the exception is instantiated, the variable name and author are
+not available (typical case).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.ServerReconnectFailedError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">ServerReconnectFailedError</code><span class="sig-paren">(</span><em>uri</em>, <em>tb</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientxerrors.ServerReconnectFailedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when a previous connection could not be reopened</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>uri</strong> &#8211; The uri to display in the message</li>
+<li><strong>tb</strong> &#8211; The string traceback</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.ServerUnavailableError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">ServerUnavailableError</code><span class="sig-paren">(</span><em>uri</em>, <em>tb</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientxerrors.ServerUnavailableError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>uri</strong> &#8211; The uri to display in the message</li>
+<li><strong>tb</strong> &#8211; The string traceback</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.ObjectNotSerializableError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">ObjectNotSerializableError</code><a class="headerlink" href="#ipcclientxerrors.ObjectNotSerializableError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when an object to be used is not seriablizable with the current serializer</p>
+<dl class="method">
+<dt id="ipcclientxerrors.ObjectNotSerializableError.updatemessage">
+<code class="descname">updatemessage</code><span class="sig-paren">(</span><em>obj</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientxerrors.ObjectNotSerializableError.updatemessage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allows for message updating when the object is unavailable at the time of instantiation
+:param obj:  the object that failed serialization</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.UseCachedCopyError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">UseCachedCopyError</code><a class="headerlink" href="#ipcclientxerrors.UseCachedCopyError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when the server instructs the client to use data from the cache</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.SaveFailedError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">SaveFailedError</code><a class="headerlink" href="#ipcclientxerrors.SaveFailedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when a pickle save fails on the server</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.RestoreFailedError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">RestoreFailedError</code><a class="headerlink" href="#ipcclientxerrors.RestoreFailedError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Raised when a pickle restore fails on the server</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.UnknownError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">UnknownError</code><span class="sig-paren">(</span><em>msg</em>, <em>tb</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientxerrors.UnknownError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Error otherwise not defined</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="ipcclientxerrors.NoError">
+<em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">NoError</code><a class="headerlink" href="#ipcclientxerrors.NoError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
+<p>Default case when no errors have occurred. Used to keep interface with IPCClientX.__getwrapper consistent.</p>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -546,6 +587,7 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
+      Last updated on Nov 17, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>

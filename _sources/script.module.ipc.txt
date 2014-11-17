@@ -46,7 +46,7 @@ or however you wish. Objects can be shared from the server using the default con
 
     import os
     import sys
-    import xbmcaddon
+    import xbmc, xbmcaddon
     from ipc.ipcserver import IPCServer
 
     # see the note below about the following 3 lines
@@ -59,6 +59,9 @@ or however you wish. Objects can be shared from the server using the default con
     obj = MyObjectToBeShared()
     myserver = IPCServer(expose_obj=obj)
     myserver.start()
+    while not xbmc.abortRequested:
+        xbmc.sleep(1000)
+    myserver.stop()
 
 .. note::
 
@@ -66,7 +69,13 @@ or however you wish. Objects can be shared from the server using the default con
     with the way the server then accesses that object, I highly recommend that the path to the exposed object be placed
     in the PYTHONPATH by using sys.path as shown.
 
-These can be then used on the client, again using the default configuration as an example:
+.. warning::
+
+    Under rare circumstances, if Kodi exits erroneously without getting to line 18, the Kodi process may remain running
+    despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed manually.
+
+Once the server is running, the shared object can be used on the client, again using the default configuration as
+an example:
 
 ::
 
@@ -77,8 +86,8 @@ These can be then used on the client, again using the default configuration as a
     myvalue = obj.mymethod()
 
 As can be seen in the example above, for the client, it not necessary to import the class of the exposed object.
-However, during initial development, it is recommended that the actual class is imported and instantiated instead of using
-``obj = myclient.get_exposed_object()``
+However, during initial development, it is recommended that the actual class is imported and instantiated instead of
+using ``obj = myclient.get_exposed_object()``
 until you are sure that everything is working correctly with that object and then switching over to using the server
 version.
 

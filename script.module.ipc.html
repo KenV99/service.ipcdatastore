@@ -48,6 +48,9 @@
     </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/icon.png" alt="Logo"/>
+            </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">script.module.ipc</a><ul>
@@ -136,9 +139,12 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 12
 13
 14
-15</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+15
+16
+17
+18</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">xbmcaddon</span>
+<span class="kn">import</span> <span class="nn">xbmc</span><span class="o">,</span> <span class="nn">xbmcaddon</span>
 <span class="kn">from</span> <span class="nn">ipc.ipcserver</span> <span class="kn">import</span> <span class="n">IPCServer</span>
 
 <span class="c"># see the note below about the following 3 lines</span>
@@ -151,6 +157,9 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyObjectToBeShared</span><span class="p">()</span>
 <span class="n">myserver</span> <span class="o">=</span> <span class="n">IPCServer</span><span class="p">(</span><span class="n">expose_obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
 <span class="n">myserver</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">xbmc</span><span class="o">.</span><span class="n">abortRequested</span><span class="p">:</span>
+    <span class="n">xbmc</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">myserver</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
 <div class="admonition note">
@@ -159,7 +168,13 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 with the way the server then accesses that object, I highly recommend that the path to the exposed object be placed
 in the PYTHONPATH by using sys.path as shown.</p>
 </div>
-<p>These can be then used on the client, again using the default configuration as an example:</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Under rare circumstances, if Kodi exits erroneously without getting to line 18, the Kodi process may remain running
+despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed manually.</p>
+</div>
+<p>Once the server is running, the shared object can be used on the client, again using the default configuration as
+an example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ipc.ipcclient</span> <span class="kn">import</span> <span class="n">IPCClient</span>
 
 <span class="n">myclient</span> <span class="o">=</span> <span class="n">IPCClient</span><span class="p">()</span>
@@ -168,8 +183,8 @@ in the PYTHONPATH by using sys.path as shown.</p>
 </pre></div>
 </div>
 <p>As can be seen in the example above, for the client, it not necessary to import the class of the exposed object.
-However, during initial development, it is recommended that the actual class is imported and instantiated instead of using
-<code class="docutils literal"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">myclient.get_exposed_object()</span></code>
+However, during initial development, it is recommended that the actual class is imported and instantiated instead of
+using <code class="docutils literal"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">myclient.get_exposed_object()</span></code>
 until you are sure that everything is working correctly with that object and then switching over to using the server
 version.</p>
 <p>The above examples do not provide for any exception handling. For a more detailed example with handling of both
@@ -178,8 +193,8 @@ client side and server side errors, see the actual python file for: <a class="re
 <span id="classes-and-class-methods-from-script-module-ipc"></span><span id="index-0"></span><h2>Classes and class methods from script.module.ipc<a class="headerlink" href="#module-ipcserver" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="ipcserver.IPCServer">
-<em class="property">class </em><code class="descclassname">ipcserver.</code><code class="descname">IPCServer</code><span class="sig-paren">(</span><em>expose_obj</em>, <em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>serializer='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="http://docs.python.org/library/threading.html#threading.Thread" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></a></p>
+<em class="property">class </em><code class="descclassname">ipcserver.</code><code class="descname">IPCServer</code><span class="sig-paren">(</span><em>expose_obj</em>, <em>add_on_id=''</em>, <em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>serializer='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/threading.html#threading.Thread" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">threading.Thread</span></code></a></p>
 <p>Initializes all parameters needed to start the server using a specifically named server and port.
 (pyro4 allows for the use of a nameserver if desired. Details at: <a class="reference external" href="https://pythonhosted.org/Pyro4/index.html">https://pythonhosted.org/Pyro4/index.html</a>)
 Inherits from threading so that an EXTERNAL event loop can be used to exit gracefully when Kodi is shutting down
@@ -190,11 +205,13 @@ by calling the stop() method. Note that if you plan to run more than one server,
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>expose_obj</strong> (<em>object or classic class</em>) &#8211; This is the python object whose methods will be exposed to the clients</li>
-<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The arbitrary name used by the socket protocol for this datastore</li>
-<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The host that will be used for the server</li>
-<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; The port for the socket used</li>
-<li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The serialization protocol to be used. Options: pickle, serpent, marshall, json</li>
+<li><strong>expose_obj</strong> (<em>object or classic class</em>) &#8211; <em>Required</em>. This is the python object whose methods will be exposed to the clients</li>
+<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml file.
+This supercedes any explicit keyword assignments for name, host and port.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The arbitrary name used by the socket protocol for this datastore.</li>
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The host that will be used for the server.</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. The port for the socket used.</li>
+<li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The serialization protocol to be used. Options: pickle, serpent, marshall, json</li>
 </ul>
 </td>
 </tr>
@@ -204,7 +221,7 @@ by calling the stop() method. Note that if you plan to run more than one server,
 <dt id="ipcserver.IPCServer.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Note that you must call .start() on the class instance to start the server in a separate thread.
-Do not call this routine directly with .run() or it will run in the same thread as the caller and lock when it
+Do not call run() directly with IPCServer.run() or it will run in the same thread as the caller and lock when it
 hits daemon.requestLoop().</p>
 </dd></dl>
 
@@ -223,7 +240,7 @@ sharing protocol).</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>test_obj</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; The object to be tested</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>test_obj</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; Required. The object to be tested</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if pickleable, False if not</td>
 </tr>
@@ -237,7 +254,7 @@ sharing protocol).</p>
 
 <span class="target" id="module-ipcclient"></span><dl class="class">
 <dt id="ipcclient.IPCClient">
-<em class="property">class </em><code class="descclassname">ipcclient.</code><code class="descname">IPCClient</code><span class="sig-paren">(</span><em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>datatype='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">ipcclient.</code><code class="descname">IPCClient</code><span class="sig-paren">(</span><em>add_on_id=''</em>, <em>name='kodi-IPC'</em>, <em>host='localhost'</em>, <em>port=9099</em>, <em>datatype='pickle'</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclient.IPCClient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initializes the client to use a named proxy for data communication with the server. The method &#8216;get_data_object&#8217;
 should be invoked just before running a server based method and then destroyed promptly to prevent running out
 of data sockets on the server and preventing dropped connections. This can be done by dropping out of context
@@ -247,10 +264,12 @@ and need not be done explicitly. See pyro4 docs at <a class="reference external"
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Arbitrary name for the object being used, must match the name used by server</li>
-<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The resolvable name or IP address where the server is running</li>
-<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; Port matching server port</li>
-<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
+<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml file.
+This supercedes any explicit eyword assignments for name, host and port.</li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Arbitrary name for the object being used, must match the name used by server</li>
+<li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The resolvable name or IP address where the server is running</li>
+<li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. Port matching server port</li>
+<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
 </ul>
 </td>
 </tr>
@@ -335,6 +354,7 @@ informative for these types of errors.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
+      Last updated on Nov 17, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>
