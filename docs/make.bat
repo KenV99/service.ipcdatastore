@@ -74,6 +74,10 @@ if errorlevel 9009 (
 
 if "%1" == "html" (
 	%SPHINXBUILD% -b html %ALLSPHINXOPTS% %BUILDDIR%/html
+	copy _extra\*.* _build\html /Y
+	rmdir /S /Q C:\Temp\html
+    robocopy _build\html C:\Temp\html /E /NP /NFL /NDL /NJH /NS /NC
+    del C:\Temp\html\.buildinfo
 	if errorlevel 1 exit /b 1
 	echo.
 	echo.Build finished. The HTML pages are in %BUILDDIR%/html.

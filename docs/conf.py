@@ -18,6 +18,7 @@ import os
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+sys.path.insert(0, r"C:\Python27\Scripts")
 sys.path.insert(0, r"C:\Python27\xbmcstubs-master")
 sys.path.insert(0, r"C:\Users\Ken User\AppData\Roaming\XBMC\addons\service.ipcdatastore")
 sys.path.insert(0, r"C:\Users\Ken User\AppData\Roaming\XBMC\addons\service.ipcdatastore\resources\lib")
@@ -130,7 +131,7 @@ html_theme = 'sphinxdoc'
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-#html_logo = None
+html_logo = '../icon.png'
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -145,11 +146,11 @@ html_static_path = ['_static']
 # Add any extra paths that contain custom files (such as robots.txt or
 # .htaccess) here, relative to this directory. These files are copied
 # directly to the root of the documentation.
-#html_extra_path = []
+#html_extra_path = ['_extra']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
-#html_last_updated_fmt = '%b %d, %Y'
+html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
