@@ -21,9 +21,6 @@ import sys
 import os
 import threading
 
-from resources.lib.debugger import start_debugger
-start_debugger()
-
 import xbmc
 import xbmcgui
 import xbmcaddon
