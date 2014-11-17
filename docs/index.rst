@@ -12,10 +12,10 @@ Introduction:
 
     These addons currently have been tested and are working on:
 
-        1) Windows (Helix B2 and Gotham 13.2)
-        #) OSX (Helix B2 and Gotham 13.2)
-        #) Android (Helix B2 and Gotham 13.2)
-        #) XBMCbuntu (Gotham 13.2)
+        1) Windows (Helix B3 and Gotham 13.2)
+        #) OSX (Helix B3 and Gotham 13.2)
+        #) Android (Helix B3 and Gotham 13.2)
+        #) XBMCbuntu (Helix B3 and Gotham 13.2)
 
     They may be downloaded and installed from:
 

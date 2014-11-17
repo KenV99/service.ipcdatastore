@@ -37,46 +37,56 @@ def get_log_mediainfo():
     """
     exec_version = float(str(xbmc.getInfoLabel("System.BuildVersion"))[0:4])
     if exec_version < 14.0:
-        logfn = xbmc.translatePath(r'special://logpath/XBMC.log')
+        logfn = xbmc.translatePath(r'special://logpath/xbmc.log')
     else:
         logfn = xbmc.translatePath(r'special://logpath/kodi.log')
-    xbmc.sleep(250)  # found originally that it wasn't written yet
     if is_xbmc_debug():
         lookbacksize = 6144
         lookbacklines = 60
     else:
         lookbacksize = 2560
         lookbacklines = 25
-    try:
-        with open(logfn, "r") as f:
-            f.seek(0, 2)           # Seek @ EOF
-            fsize = f.tell()        # Get Size
-            f.seek(max(fsize - lookbacksize, 0), 0)  # Set pos @ last n chars
-            lines = f.readlines()       # Read to end
-        lines = lines[-lookbacklines:]    # Get last n lines
-        ret = None
-        for line in lines:
-            if 'fps:' in line:
-                start = line.find('fps:')
-                sub = line[start:].rstrip('\n')
-                tret = dict(item.split(":") for item in sub.split(","))
-                ret = {}
-                for key in tret:
-                    tmp = key.strip()
-                    try:
-                        if tmp == 'fps':
-                            ret['fps'] = float(tret[key])
-                        else:
-                            ret[tmp] = int(tret[key])
-                    except ValueError:
-                        pass
-                if ret['pheight'] != 0:
-                    ret['par'] = float(ret['pwidth'])/float(ret['pheight'])
-                if ret['dheight'] != 0:
-                    ret['dar'] = float(ret['dwidth'])/float(ret['dheight'])
-        return ret
-    except Exception as e:
-        xbmc.log('Error opening logfile')
+    ret = None
+    numretries = 4
+    while numretries > 0:
+        xbmc.sleep(250)
+        try:
+            with open(logfn, "r") as f:
+                f.seek(0, 2)           # Seek @ EOF
+                fsize = f.tell()        # Get Size
+                f.seek(max(fsize - lookbacksize, 0), 0)  # Set pos @ last n chars
+                lines = f.readlines()       # Read to end
+            lines = lines[-lookbacklines:]    # Get last n lines
+
+            for line in lines:
+                if 'fps:' in line:
+                    start = line.find('fps:')
+                    sub = line[start:].rstrip('\n')
+                    tret = dict(item.split(":") for item in sub.split(","))
+                    ret = {}
+                    for key in tret:
+                        tmp = key.strip()
+                        try:
+                            if tmp == 'fps':
+                                ret['fps'] = float(tret[key])
+                            else:
+                                ret[tmp] = int(tret[key])
+                        except ValueError:
+                            pass
+                    if ret['pheight'] != 0:
+                        ret['par'] = float(ret['pwidth'])/float(ret['pheight'])
+                    if ret['dheight'] != 0:
+                        ret['dar'] = float(ret['dwidth'])/float(ret['dheight'])
+        except Exception as e:
+            xbmc.log('Error opening logfile: {0}'.format(logfn))
+            if hasattr(e, 'message'):
+                xbmc.log('Error message: {0}'.format(e.message))
+            numretries = 0
+        if ret is not None:
+            numretries = 0
+    if ret is None:
+        xbmc.log('Could not retrieve video info from log')
+    return ret
 
 
 def is_xbmc_debug():

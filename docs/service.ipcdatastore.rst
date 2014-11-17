@@ -6,6 +6,8 @@ service.ipcdatastore
 Add On Settings Page
 ====================
 
+????
+
 .. image:: ipc-settings.png
    :align: left
    :width: 300px
@@ -25,7 +27,8 @@ There are several configurable settings for the addon:
    #) A more detailed testing suite for the datastore object's methods which runs when clicked.
 
 .. warning::
-   Changes to any setting require you to click 'OK' and exit back out of settings to take effect.
+   Changes to any of the settings requires you to click 'OK' and exit back out of settings to take effect and then
+   disable and re-enable the addon.
 
 .. note::
    When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified, an attempt will be made to
@@ -127,6 +130,7 @@ there is asynchronous data being provided and consumed, it will allow a consumin
 without transferring the full data set with each request, for instance, if the client is waiting for new data. As might
 be expected, the impact of caching in this manner is small for small object sizes.
 
+????
 
 =======================================
 Class methods from service.ipcdatastore
@@ -136,10 +140,22 @@ Class methods from service.ipcdatastore
     :members:
     :show-inheritance:
 
+????
+
 =================
 Custom Exceptions
 =================
 
 .. automodule:: ipcclientxerrors
+    :members:
+    :show-inheritance:
+
+????
+
+==============================================================
+Classes used for Datastore - The actual object that is Proxied
+==============================================================
+
+.. automodule:: datastore
     :members:
     :show-inheritance:

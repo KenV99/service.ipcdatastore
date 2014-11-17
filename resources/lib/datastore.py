@@ -45,20 +45,44 @@ IPCERROR_NONSERIALIZABLE = 5
 
 
 class DataObjectBase(object):
+    """
+    Base class for DataObject and DataObjectX
+
+    """
     def __init__(self):
         self.ts = None
         self.value = None
 
 
 class DataObject(DataObjectBase):
+    """
+    Class of all objects returned by server. Includes object and timestamp.
+
+    """
     def __init__(self, dox):
+        """
+        Requires instance of :class:`datastore.DataObjectX` during instantiation: that is the class actually stored
+        in the datastore dict.
+
+        :param dox: *Required*. See above.
+        :type dox: DataObjectX()
+
+        """
+
         super(DataObject, self).__init__()
         self.ts = dox.ts
         self.value = dox.value
 
 
 class DataObjectX(DataObjectBase):
+    """
+    Class used to store objects in the datastore. Extends :class:`datastore.DataOnject` with a dict of requestors
+    """
     def __init__(self, value):
+        """
+        :param value: The object to be stored
+        :type value: pickleable obj
+        """
         super(DataObjectX, self).__init__()
         self.ts = time.time()
         self.value = value
@@ -66,16 +90,41 @@ class DataObjectX(DataObjectBase):
 
 
 class DataObjects(object):
+    """
+    The actual datastore object whose methods are exposed via pyro4.proxy
+    """
     def __init__(self):
         self.__odict = {}
 
     @pyro4.oneway
     def set(self, name, value, author):
+        """
+        :param name:
+        :type name: str
+        :param value:
+        :type value: object
+        :param author:
+        :type author: str
+        :returns: Nothing
+        """
         dox = DataObjectX(value)
         idx = (str(author), str(name))
         self.__odict[idx] = dox
 
     def get(self, requestor, name, author, force=False):
+        """
+
+        :param requestor:
+        :type requestor: str
+        :param name:
+        :type name: str
+        :param author:
+        :type author: str
+        :param force:
+        :type force: bool
+        :return: Either a dataoject or a one byte message code
+        :rtype: :class:`datastore.DataObject` or one character str
+        """
         idx = (str(author), str(name))
         if idx in self.__odict:
             dox = self.__odict[idx]
@@ -93,6 +142,17 @@ class DataObjects(object):
             return chr(IPCERROR_NO_VALUE_FOUND)
 
     def delete(self, name, author):
+        """
+
+        :param name:
+        :type name: str
+        :param author:
+        :type author: str
+        :param force:
+        :type force: bool
+        :return: Either a dataoject or a one byte message code
+        :rtype: :class:`datastore.DataObject` or one character str
+        """
         idx = (str(author), str(name))
         if idx in self.__odict:
             dox = self.__odict.pop(idx)
@@ -102,6 +162,13 @@ class DataObjects(object):
             return chr(IPCERROR_NO_VALUE_FOUND)
 
     def get_data_list(self, author=None):
+        """
+
+        :param author:
+        :type author: str
+        :return:
+        :rtype: dict with author(s) as key(s)
+        """
         dl = {}
         for key in self.__odict.keys():
             if key[0] == author or author is None:
@@ -113,9 +180,22 @@ class DataObjects(object):
 
     @pyro4.oneway
     def clearall(self):
+        """
+
+        :return: Nothing
+        """
         self.__odict = {}
 
     def savedata(self, author, fn):
+        """
+
+        :param author:
+        :type author: str
+        :param fn:
+        :type fn: str
+        :return: True on success, False on failure
+        :rtype: bool
+        """
         default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
         default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
         save = {}
@@ -136,6 +216,15 @@ class DataObjects(object):
             return False
 
     def restoredata(self, author, fn):
+        """
+
+        :param author:
+        :type author: str
+        :param fn:
+        :type fn: str
+        :return: True on success, False on failure
+        :rtype: bool
+        """
         default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
         default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
         try:
@@ -155,6 +244,12 @@ class DataObjects(object):
 
     @pyro4.oneway
     def clearcache(self, requestor):
+        """
+
+        :param requestor:
+        :type requestor: str
+        :return: Nothing
+        """
         for key in self.__odict:
             if requestor in self.__odict[key].requestors:
                 del self.__odict[key].requestors[requestor]
