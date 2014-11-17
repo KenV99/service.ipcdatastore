@@ -57,6 +57,7 @@
 </li>
 <li><a class="reference internal" href="#module-ipcclientx">Class methods from service.ipcdatastore</a></li>
 <li><a class="reference internal" href="#module-ipcclientxerrors">Custom Exceptions</a></li>
+<li><a class="reference internal" href="#module-datastore">Classes used for Datastore - The actual object that is Proxied</a></li>
 </ul>
 </li>
 </ul>
@@ -96,6 +97,7 @@
 <h1>service.ipcdatastore<a class="headerlink" href="#service-ipcdatastore" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="add-on-settings-page">
 <h2>Add On Settings Page<a class="headerlink" href="#add-on-settings-page" title="Permalink to this headline">¶</a></h2>
+<hr class="docutils" />
 <a class="reference internal image-reference" href="_images/ipc-settings.png"><img alt="_images/ipc-settings.png" class="align-left" src="_images/ipc-settings.png" style="width: 300px;" /></a>
 <p>There are several configurable settings for the addon:</p>
 <blockquote>
@@ -112,7 +114,8 @@
 </div></blockquote>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Changes to any setting require you to click &#8216;OK&#8217; and exit back out of settings to take effect.</p>
+<p class="last">Changes to any of the settings requires you to click &#8216;OK&#8217; and exit back out of settings to take effect and then
+disable and re-enable the addon.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -221,6 +224,7 @@ without transferring the full data set with each request, for instance, if the c
 be expected, the impact of caching in this manner is small for small object sizes.</p>
 </div>
 </div>
+<hr class="docutils" />
 <div class="section" id="module-ipcclientx">
 <span id="class-methods-from-service-ipcdatastore"></span><h2>Class methods from service.ipcdatastore<a class="headerlink" href="#module-ipcclientx" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
@@ -444,6 +448,7 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 </dd></dl>
 
 </div>
+<hr class="docutils" />
 <div class="section" id="module-ipcclientxerrors">
 <span id="custom-exceptions"></span><h2>Custom Exceptions<a class="headerlink" href="#module-ipcclientxerrors" title="Permalink to this headline">¶</a></h2>
 <dl class="exception">
@@ -559,6 +564,217 @@ not available (typical case).</p>
 <em class="property">exception </em><code class="descclassname">ipcclientxerrors.</code><code class="descname">NoError</code><a class="headerlink" href="#ipcclientxerrors.NoError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ipcclientxerrors.IPCClientError" title="ipcclientxerrors.IPCClientError"><code class="xref py py-class docutils literal"><span class="pre">ipcclientxerrors.IPCClientError</span></code></a></p>
 <p>Default case when no errors have occurred. Used to keep interface with IPCClientX.__getwrapper consistent.</p>
+</dd></dl>
+
+</div>
+<hr class="docutils" />
+<div class="section" id="module-datastore">
+<span id="classes-used-for-datastore-the-actual-object-that-is-proxied"></span><h2>Classes used for Datastore - The actual object that is Proxied<a class="headerlink" href="#module-datastore" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="datastore.DataObjectBase">
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjectBase</code><a class="headerlink" href="#datastore.DataObjectBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Base class for DataObject and DataObjectX</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="datastore.DataObject">
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObject</code><span class="sig-paren">(</span><em>dox</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datastore.DataObjectBase" title="datastore.DataObjectBase"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObjectBase</span></code></a></p>
+<p>Class of all objects returned by server. Includes object and timestamp.</p>
+<p>Requires instance of <a class="reference internal" href="#datastore.DataObjectX" title="datastore.DataObjectX"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObjectX</span></code></a> during instantiation: that is the class actually stored
+in the datastore dict.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dox</strong> (<em>DataObjectX()</em>) &#8211; <em>Required</em>. See above.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="datastore.DataObjectX">
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjectX</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjectX" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#datastore.DataObjectBase" title="datastore.DataObjectBase"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObjectBase</span></code></a></p>
+<p>Class used to store objects in the datastore. Extends <code class="xref py py-class docutils literal"><span class="pre">datastore.DataOnject</span></code> with a dict of requestors</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>value</strong> (<em>pickleable obj</em>) &#8211; The object to be stored</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="datastore.DataObjects">
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjects</code><a class="headerlink" href="#datastore.DataObjects" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>The actual datastore object whose methods are exposed via pyro4.proxy</p>
+<dl class="method">
+<dt id="datastore.DataObjects.set">
+<code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.set" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>value</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Nothing</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>requestor</em>, <em>name</em>, <em>author</em>, <em>force=False</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.get" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>force</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Either a dataoject or a one byte message code</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#datastore.DataObject" title="datastore.DataObject"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObject</span></code></a> or one character str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>name</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.delete" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>force</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Either a dataoject or a one byte message code</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#datastore.DataObject" title="datastore.DataObject"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObject</span></code></a> or one character str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.get_data_list">
+<code class="descname">get_data_list</code><span class="sig-paren">(</span><em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.get_data_list" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict with author(s) as key(s)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.clearall">
+<code class="descname">clearall</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.clearall" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.savedata">
+<code class="descname">savedata</code><span class="sig-paren">(</span><em>author</em>, <em>fn</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.savedata" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>fn</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.restoredata">
+<code class="descname">restoredata</code><span class="sig-paren">(</span><em>author</em>, <em>fn</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.restoredata" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>fn</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.clearcache">
+<code class="descname">clearcache</code><span class="sig-paren">(</span><em>requestor</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.clearcache" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Nothing</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 </div>

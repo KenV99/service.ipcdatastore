@@ -4,6 +4,8 @@
 script.module.ipc
 *****************
 
+????
+
 .. highlight:: python
    :linenothreshold: 6
 
@@ -95,6 +97,8 @@ The above examples do not provide for any exception handling. For a more detaile
 client side and server side errors, see the actual python file for: :class:`ipcclientx.IPCClientX`.
 
 .. index:: Classes and methods
+
+????
 
 ================================================
 Classes and class methods from script.module.ipc
