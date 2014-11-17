@@ -20,8 +20,8 @@ There are several configurable settings for the addon:
    #) The socket port.
    #) Whether to start the server at startup.
    #) A simple test to assess if the server is working correctly which runs on clicking.
-   #) Whether or not to place data regarding the currently playing video in the datastore automatically.
-   #) Whether or not to show the above data as a notification when a video begins playing.
+   #) Demo: Whether or not to place data regarding the currently playing video in the datastore automatically.
+   #) Demo: Whether or not to show the above data as a notification when a video begins playing.
    #) A more detailed testing suite for the datastore object's methods which runs when clicked.
 
 **Note:** When using the class IPCClientX (described below) if the addon id is specified, an attempt will be made to
@@ -38,7 +38,7 @@ IPCClientX is really a class that wraps some core functionality of a shared dict
 the dictionary under a key consisting of the object's "name" and "author". This was implemented in this manner to
 prevent naming conflicts if serveral different addons are placing objects in the datastore.
 
-The name is required at the time that the data is stored using :func: `IPCClientX.set`. If the author is not provided
+The name is required at the time that the data is stored using :func:`ipcclientx.IPCClientX.set`. If the author is not provided
 and the code is running under an addon whose id is available, that will be used. No addon id will be available when
 the code is running from a 'RunScript' statement and an exception will be raised. Each object is time-stamped as it
 is stored.
@@ -59,11 +59,11 @@ On line 5, the client is instantiated using the ``addon_id`` syntax option. This
 host and port settings from the addon whose id is provided. This allows any other addon to discover the server's
 settings at the time of instantiation instead of having to hard code it.
 
-Line 6 first checks to see if the server is available using the inherited method from IPCClient from script.module.ipc.
-This isn't truly necessary, but provides a graceful means of failure if the server is not up.
+Line 6 first checks to see if the server is available using the :func:`inherited method <ipcclient.IPCClient.server_available>`
+from IPCClient from script.module.ipc. This isn't truly necessary, but provides a graceful means of failure if the server is not up.
 
-Line 7 then stores the object, in this case, an integer using the name 'x'. The author is explicitly given using a
-keyword.
+Line 7 then stores the object using the :func:`set method <ipcclientx.IPCClientX.set>`, in this case, an integer using
+the name 'x'. The author is explicitly given using a keyword (optional).
 
 ????
 
@@ -100,24 +100,27 @@ the actual object, *ts* is the timestamp (float) and *cached* is a boolean indic
         cached = nt.cached
 
 
-Line 7 retrieves the data as described above, while lines 13-16 illustrate the use of the namedtuple. The value of
-cached is provided mostly for testing purposes. The way the cache is implemented, there should be no circumstances
-where a cached object has become 'stale'. See below.
+Line 7 retrieves the data using :func:`get <ipcclientx.IPCClientX.get>` as described above, while lines 13-16 illustrate the
+use of the namedtuple. The value of ``cached`` is provided mostly for testing purposes. With the caching algorithm used,
+there should be no circumstances where a cached object has become 'stale'. See below.
+
+The full set of methods for IPCClientX available are in the documentation :class:`below <ipcclientx.IPCClientX>`.
 
 -----------------
 Caching mechanism
 -----------------
 
-Each time data is retrieved, the requestor and the ts of the data requested are stored on the server side. The data is
-also stored on the client side. Also, at the time of each request, the server looks to see if the data has already been
-provided to the current requestor and if so, if the current data timestamp is the same as what was provided to the
-requestor during the last request. If it is, a one-byte message is returned instead of the object instructing the client
-to look for the data in it's own local cache. If for some reason, the data is NOT in the local cache, another request
-is sent with a tag instructing the server to provide the data regardless.
+Each time data is retrieved, the requestor and the timestamp of the data requested are stored on the server side. The
+data is also stored on the client side. Also, at the time of each request, the server looks to see if the data has
+already been provided to the current requestor and if so, if the current data timestamp is the same as what was provided
+to the requestor during the last request. If it is, a one-byte message is returned instead of the object instructing the
+client to look for the data in it's own local cache. If for some reason, the data is NOT in the local cache, another
+request is sent with a tag instructing the server to provide the data regardless.
 
 This was implemented for performance purposes to minimize the amount of the data sent 'over-the-wire'. In addition when
 there is asynchronous data being provided and consumed, it will allow a consuming client to wait in a request loop
-without transferring data with each request. This is illustrated in the following example.
+without transferring the full data set with each request, if the client is waiting for new data. As might be expected,
+the impact of caching in this manner is small for small object sizes.
 
 ============================
 Advanved usage of IPCClientX

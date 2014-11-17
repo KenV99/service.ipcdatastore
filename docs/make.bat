@@ -1,4 +1,4 @@
-@ECHO ON
+@ECHO OFF
 
 REM Command file for Sphinx documentation
 
@@ -51,6 +51,7 @@ if "%1" == "clean" (
 REM Check if sphinx-build is available and fallback to Python version if any
 %SPHINXBUILD% 2> nul
 if errorlevel 9009 goto sphinx_python
+echo.Using available 'sphinx-build'
 goto sphinx_ok
 
 :sphinx_python
@@ -80,7 +81,7 @@ if "%1" == "html" (
     del C:\Temp\html\.buildinfo
 	if errorlevel 1 exit /b 1
 	echo.
-	echo.Build finished. The HTML pages are in %BUILDDIR%/html.
+	echo.Build finished. The HTML pages are in %BUILDDIR%/html and a copy is in C:\Temp\html.
 	goto end
 )
 

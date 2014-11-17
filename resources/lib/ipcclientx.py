@@ -87,15 +87,7 @@ class IPCClientX(IPCClient):
     """
 
     def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
-
-        if addon_id != '':
-            try:
-                name = xbmcaddon.Addon(addon_id).getSetting('data_name')
-                host = xbmcaddon.Addon(addon_id).getSetting('host')
-                port = xbmcaddon.Addon(addon_id).getSetting('port')
-            except:
-                pass
-        super(IPCClientX, self).__init__(name, host, port, datatype)
+        super(IPCClientX, self).__init__(addon_id, name, host, port, datatype)
         self.cache = {}
         if __callingmodule__ == 'default.py':
             self.addonname = xbmcaddon.Addon().getAddonInfo('id')

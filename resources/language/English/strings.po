@@ -77,11 +77,11 @@ msgid "Tests complete"
 msgstr ""
 
 msgctxt "#32017"
-msgid "Serve video data from log?"
+msgid "Demo: Serve video data from log?"
 msgstr ""
 
 msgctxt "#32018"
-msgid "Show video data from log?"
+msgid "Demo: Show video data from log?"
 msgstr ""
 
 msgctxt "#32019"

@@ -17,10 +17,12 @@
 #    along with this program. If not, see <http://www.gnu.org/license/>.
 
 
-
 import sys
 import os
 import threading
+
+from resources.lib.debugger import start_debugger
+start_debugger()
 
 import xbmc
 import xbmcgui
@@ -29,12 +31,7 @@ import xbmcaddon
 """
 .. note::
    IT IS EXTREMELY IMPORTANT THAT THE DIRECTORY WHERE THE FILE(S) THAT CONTAIN(S) THE CLASS DEFINITION(S) OF THE
-   OBJECT(S) THAT WILL BE SHARED BY THE SEVER IS (ARE) IN A PATH LOCATION ACCESSIBLE FROM ANYWHERE ANY CLIENT MAY
-   CONNECT.
-   Do not use realtive path imports at the time of object instantiation before registering on the server.
-   The client will not be able to retrieve the return structures and will generate an error.
-   Either add the path of object direct to sys.path or use addon.xml to add a module type extension point to point
-   to the path where the module containing the definition of the object to be shared resides
+   OBJECT(S) THAT WILL BE SHARED BY THE SEVER IS (ARE) IN A PATH LOCATION ACCESSIBLE TO ALL OF THE SERVER MODULES.
 """
 
 path_to_shared_obj = os.path.join(xbmcaddon.Addon().getAddonInfo('path'), 'resources', 'lib')
@@ -54,14 +51,14 @@ from resources.lib.mediainfofromlog import get_log_mediainfo
 myserver = None
 
 
-def serverstart(data_name='kodi-IPC', host='localhost', port=9099):
+def serverstart():
     #    .start() is required since the server is started in a separate thread. This done to prevent
     #    blocking and allow us to call in to stop thread during abort by holding a reference to the server daemon
     #    without doing this, an error is generated in the kodi logfile. The method of polling xbmc.abortrequested
     #    will likely be changed in the Helix final release.
     global myserver
-    myserver = IPCServer(DataObjects(), name=data_name, host=host, port=port)
-    xbmc.log('*&*&*&*& ipcdatastore: Attempting to start server on {0}:{1}'.format(host, port))
+    myserver = IPCServer(DataObjects(), add_on_id='service.ipcdatastore')
+    xbmc.log('*&*&*&*& ipcdatastore: Attempting to start server on {0}:{1}'.format(myserver.host, myserver.port))
     myserver.start()
 
 
@@ -155,10 +152,7 @@ class MonitorSettings(xbmc.Monitor):
 
 
 def start():
-    host = xbmcaddon.Addon().getSetting('host')
-    port = int(xbmcaddon.Addon().getSetting('port'))
-    data_name = xbmcaddon.Addon().getSetting('data_name')
-    serverstart(data_name=data_name, host=host, port=port)
+    serverstart()
     xbmc.sleep(2000)
     testclient()
 
