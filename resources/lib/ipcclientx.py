@@ -63,30 +63,31 @@ if DEBUG:
 
 class IPCClientX(IPCClient):
     """
-
     Subclasses IPCClient from script.module.ipc and extends functionality for a datastore object
-
-    :param addon_id: If specified, this supersedes the name/port/host. Checks settings.xml for the info.
-    :type addon_id: str
-    :param name: Arbitrary name for the object being used, must match the name used by server
-    :type name: str
-    :param port: Port matching server port
-    :type port: int
-    :param datatype: Type of data transport being used options: pickle, serpent, json, marshall. Must match server
-    :type datatype: str
-
-    There are two useful *public* attributes than can be changed after instantiation:
-
-    ==========================  ========================================================================================
-    ``raise_exception``:        | When set to True, will raise exceptions that can be caught rather than
-                                | failing silently, which is the default behavior.
-    ``num_of_server_retries``:  | If the client fails to connect to the server, the number of retries before
-                                | failing finally.
-    ==========================  ========================================================================================
 
     """
 
     def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
+        """
+        :param addon_id: *Optional keyword*. If specified, this supersedes the name/port/host. IPCClient checks settings.xml for the info.
+        :type addon_id: str
+        :param name: *Optional keyword*. Arbitrary name for the object being used, must match the name used by server
+        :type name: str
+        :param port: *Optional keyword*. Port matching server port
+        :type port: int
+        :param datatype: *Optional keyword*. Type of data transport being used options: pickle, serpent, json, marshall. Must match server
+        :type datatype: str
+
+        There are two useful *public* attributes than can be changed after instantiation:
+
+        ==========================  ========================================================================================
+        ``raise_exception``:        | When set to True, will raise exceptions that can be caught rather than
+                                    | failing silently, which is the default behavior.
+        ``num_of_server_retries``:  | If the client fails to connect to the server, the number of retries before
+                                    | failing finally.
+        ==========================  ========================================================================================
+
+        """
         super(IPCClientX, self).__init__(addon_id, name, host, port, datatype)
         self.cache = {}
         if __callingmodule__ == 'default.py':
@@ -175,11 +176,11 @@ class IPCClientX(IPCClient):
         that can be accepted by the chosen datatype (see :class:`above <IPCClientX>`). If the class attribute raise_exception is True,
         will raise an exception with failure.
 
-        :param name: The variable name
+        :param name: *Required*. The variable name
         :type name: str
-        :param value: The value of the variable
+        :param value: *Required*. The value of the variable
         :type name: Any object type compatible with the datatype transport
-        :param author: The originator of the data which along with the variable name is used as the primary key
+        :param author: *Optional keyword*. The originator of the data which along with the variable name is used as the primary key
                        for the backend dictionary for storing the item
         :type author: str
         :returns: True for success, False for failure
@@ -244,14 +245,14 @@ class IPCClientX(IPCClient):
            x_timestamp = nt.ts
            x_was_cached = nt.cached
 
-        :param name: The variable name
+        :param name: *Required*. The variable name
         :type name: str
-        :param author: The author of the data. All of the data is indexed by author and variable name in order to reduce
+        :param author: *Optional keyword*. The author of the data. All of the data is indexed by author and variable name in order to reduce
                         variable name overlap. If not supplied, the addon name is used.
         :type author: str
-        :param requestor: The name of the requestor of the data. Defaults to the addon name if found. Used for caching
+        :param requestor: *Optional keyword*. The name of the requestor of the data. Defaults to the addon name if found. Used for caching
         :type requestor: str
-        :param return_tuple: Whether to return the stored object or a named tuple containing the object, the timestamp
+        :param return_tuple: *Optional keyword*. Whether to return the stored object or a named tuple containing the object, the timestamp
                              and a bool indicating that the object came from the local cache. The named tuple returns
                              the the names value, ts and cached.
         :type return_tuple: bool
@@ -302,9 +303,11 @@ class IPCClientX(IPCClient):
         Deletes an item from the datastore and returns the deleted item's value. Returns None if not found or raises
         an exception if the IPCClientX.raise_exceptions attribute is set to True. The return item is optionally returned
         as a namedtuple (see :func:`get() <IPCClientX.get>`).
-
+        :param name: *Required*. The name of the variable to be deleted.
         :type name: str
-        :type author: __builtin__.NoneType
+        :param author: *Optional keyword*. The author of the data. Defaults to the addon id.
+        :type author:
+        :param return_tuple: *Optional keyword*. Flag to return data as namedtuple as in :func:`ipcclientx.IPCClientX.get`
         :type return_tuple: bool
         :return:
         :rtype: object or :py:func:`namedtuple <collections.namedtuple>`, None on failure
@@ -331,7 +334,7 @@ class IPCClientX(IPCClient):
         """
         Retrieves either a dict or list containing the variables names stored on the server.
 
-        :param author: The author of the data or object
+        :param author: *Optional keyword*. The author of the data or object
         :type author: str or None
         :return: A dictionary containing the authors as key and their variable names as a list. If author specified,
                  returns a list with the variable names. Returns None on failure or raises an exception.
@@ -391,6 +394,7 @@ class IPCClientX(IPCClient):
         Saves all of the data for a given author as a pickle object in the addon_data directory for
         service.ipcdatastore. Plan is to implement a way to do this automatically on server shutdown.
 
+        :param author: *Optional keyword*. Defaults to addon id.
         :type author: str or None
         :return: True on success, False on failure
         :rtype: bool
@@ -417,6 +421,7 @@ class IPCClientX(IPCClient):
         """
         Restores data on the server from a previously saved pickle (see :func:`savedata() <IPCClientX.savedata>`)
 
+        :param author: *Optional keyword*. The author whose data is to be restored. Defaults to addon id.
         :type author: str
         :return: True on success, False on failure
         :rtype: bool

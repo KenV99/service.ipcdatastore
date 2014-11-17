@@ -8,7 +8,7 @@ Add On Settings Page
 
 .. image:: ipc-settings.png
    :align: left
-   :width: 250px
+   :width: 300px
 
 .. highlight:: python
    :linenothreshold: 5
@@ -24,9 +24,15 @@ There are several configurable settings for the addon:
    #) Demo: Whether or not to show the above data as a notification when a video begins playing.
    #) A more detailed testing suite for the datastore object's methods which runs when clicked.
 
-**Note:** When using the class IPCClientX (described below) if the addon id is specified, an attempt will be made to
-retrieve the object name, host name and port from that addon's settings.xml. Thus, if ``addon_id='service.ipcdatastore'``
-is provided, then these settings will be read in, even if the code is running in another addon.
+.. warning::
+   Changes to any setting require you to click 'OK' and exit back out of settings to take effect.
+
+.. note::
+   When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified, an attempt will be made to
+   retrieve the object name, host name and port from that addon's settings.xml. Thus, if
+   ``addon_id='service.ipcdatastore'`` is provided, then these settings will be read in, even if the code is running
+   in another addon.
+
 
 ????
 
@@ -45,7 +51,6 @@ is stored.
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 5,7
 
     # Depending where this code is run from the location of the import may differ
 
@@ -80,10 +85,10 @@ the actual object, *ts* is the timestamp (float) and *cached* is a boolean indic
 
 .. code-block:: python
    :linenos:
-   :emphasize-lines: 7,13-16
 
     # Again, depending where this code is run from the location of the import may differ
 
+    import xbmc
     from resources.lib.ipcclientx import IPCClientX
 
     client = IPCClientX(addon_id='service.ipcdatastore')
@@ -100,7 +105,7 @@ the actual object, *ts* is the timestamp (float) and *cached* is a boolean indic
         cached = nt.cached
 
 
-Line 7 retrieves the data using :func:`get <ipcclientx.IPCClientX.get>` as described above, while lines 13-16 illustrate the
+Line 8 retrieves the data using :func:`get <ipcclientx.IPCClientX.get>` as described above, while lines 14-17 illustrate the
 use of the namedtuple. The value of ``cached`` is provided mostly for testing purposes. With the caching algorithm used,
 there should be no circumstances where a cached object has become 'stale'. See below.
 
@@ -119,73 +124,22 @@ request is sent with a tag instructing the server to provide the data regardless
 
 This was implemented for performance purposes to minimize the amount of the data sent 'over-the-wire'. In addition when
 there is asynchronous data being provided and consumed, it will allow a consuming client to wait in a request loop
-without transferring the full data set with each request, if the client is waiting for new data. As might be expected,
-the impact of caching in this manner is small for small object sizes.
-
-============================
-Advanved usage of IPCClientX
-============================
-
-::
-
-    import xbmc
-    from getlog...
-
-    class PlayerServer(xbmc.Player):
-
-        def __init__(self):
-            super(PlayerServer, self).__init__()
-            self.playingfile = None
-            self.server_flag = False
-
-        def onPlayBackStarted(self):
-            self.playingfile = self.getPlayingFile()
-            mydict = get_log_mediainfo()
-            client = IPCClientX(addon_id='service.ipcdatastore')
-            client.raise_exception = True
-            client.set('videodata', mydict, author='service.ipcdatastore')
-            self.server_flag = True
-            del client
-
-xxx
-
-::
-
-    import xbmc
-    class PlayerClient(xbmc.Player):
-
-        def __init__(self):
-            super(PlayerClient, self).__init__()
-            self.playingfile = None
-
-        def onPlayBackStarted(self):
-            self.playingfile = self.getPlayingFile()
-            client = IPCClientX(addon_id='service.ipcdatastore')
-            data = None
-            numchecks = 8
-            while numchecks > 0:
-                data = client.get('videodata', author='service.ipcdatastore')
-                if data is None:
-                    xbmc.sleep(500)
-                    numchecks -= 1
-                else:
-                    break
-            dialog = xbmcgui.Dialog()
-            if isinstance(data, dict):
-                msg = '{0}x{1} @ {2}'.format(data['dwidth'], data['dheight'], data['fps'])
-                dialog.notification('ipcdatastore', msg, None, 2000, True)
-            else:
-                dialog.notification('ipcdatastore', 'Time out error receiving data x {0}'.format(9 - numchecks),
-                                    None, 2000, True)
+without transferring the full data set with each request, for instance, if the client is waiting for new data. As might
+be expected, the impact of caching in this manner is small for small object sizes.
 
 
 =======================================
 Class methods from service.ipcdatastore
 =======================================
 
-.. autoclass:: ipcclientx.IPCClientX
+.. automodule:: ipcclientx
     :members:
     :show-inheritance:
 
-.. index:: example usage
+=================
+Custom Exceptions
+=================
 
+.. automodule:: ipcclientxerrors
+    :members:
+    :show-inheritance:

@@ -1,1 +1,2 @@
+0.1.0 Docs complete. Inital testing on win, ubuntu, android and OSX Mavericks.
 0.0.1 Alpha initial release working on Windows. Needs multiplatform testing.
