@@ -34,8 +34,12 @@ There are several configurable settings for the addon:
 |
 
 .. warning::
-   Changes to any of the settings requires you to click 'OK' and exit back out of settings to take effect and then
-   disable and re-enable the addon.
+   Changes to any of the settings requires you to click 'OK' and exit back out of settings and then
+   disable and re-enable the addon in order for the changes to take effect.
+
+.. note::
+   When the more detailed testing suite is run, several exceptions will appear in the xbmc.log file. This is expected
+   behavior. Exceptions are part of the testing.
 
 .. note::
    When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified, an attempt will be made to
