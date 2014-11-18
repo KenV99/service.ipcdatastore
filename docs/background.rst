@@ -4,12 +4,12 @@ Background and Features
 
 .. index:: background
 
-The addon **service.ipcdatastore** is utilizes the module (**script.module.ipc**) to create
+The addon **service.ipcdatastore** utilizes the module (**script.module.ipc**) to create
 a datastore that may be used *to transfer objects/data between different python processes*. This serves 1) to
 demonstrate how **script.module.ipc** can be used and 2) to provide a working server that can be used without
 further modification to share data amongst Kodi python addons.
 
-*Background:* Moving data between python process is somewhat difficult in Kodi. Thankfully, there are relatively
+*Background:* Moving data between python processes is somewhat difficult in Kodi. Thankfully, there are relatively
 few situations where this is needed. Examples of these are:
 
     1)  A background service needs to provide data to a plugin script invoked by the user. This can be preferable
