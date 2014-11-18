@@ -8,23 +8,30 @@ Add On Settings Page
 
 ????
 
-.. image:: ipc-settings.png
-   :align: left
-   :width: 300px
-
 .. highlight:: python
    :linenothreshold: 5
 
+.. image:: _static/ipc-settings.png
+   :align: left
+   :width: 400px
+
 There are several configurable settings for the addon:
 
-   1) The name to be used to address the object being shared. This is an arbitrary string.
-   #) The socket host name.
-   #) The socket port.
-   #) Whether to start the server at startup.
-   #) A simple test to assess if the server is working correctly which runs on clicking.
-   #) Demo: Whether or not to place data regarding the currently playing video in the datastore automatically.
-   #) Demo: Whether or not to show the above data as a notification when a video begins playing.
-   #) A more detailed testing suite for the datastore object's methods which runs when clicked.
+      1) The name to be used to address the object being shared. This is an arbitrary string.
+      #) The socket host name.
+      #) The socket port.
+      #) Whether to start the server at startup.
+      #) A simple test to assess if the server is working correctly which runs on clicking.
+      #) Demo: Whether or not to place data regarding the currently playing video in the datastore automatically.
+      #) Demo: Whether or not to show the above data as a notification when a video begins playing.
+      #) A more detailed testing suite for the datastore object's methods which runs when clicked.
+
+|
+|
+|
+|
+|
+|
 
 .. warning::
    Changes to any of the settings requires you to click 'OK' and exit back out of settings to take effect and then
