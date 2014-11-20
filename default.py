@@ -54,7 +54,9 @@ def serverstart():
     #    without doing this, an error is generated in the kodi logfile. The method of polling xbmc.abortrequested
     #    will likely be changed in the Helix final release.
     global myserver
-    myserver = IPCServer(DataObjects(), add_on_id='service.ipcdatastore')
+    myserver = IPCServer(DataObjects(persist_dir=
+                                     xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore')),
+                                     add_on_id='service.ipcdatastore')
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to start server on {0}:{1}'.format(myserver.host, myserver.port))
     myserver.start()
 
@@ -66,8 +68,12 @@ def testclient():
     #    'script.ipcclient'
     client = IPCClientX(addon_id='service.ipcdatastore')
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
-    client.set('x', 20)
+    dl = client.get_data_list()
+    print dl
+    client.set('x', 20, persist=True)
     y = client.get('x')
+    dl = client.get_data_list()
+    print dl
     if y != 20:
         raise ValueError('*&*&*&*& ipcdatastore: IPC Server check failed')
     else:

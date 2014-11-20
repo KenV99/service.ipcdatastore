@@ -52,7 +52,8 @@ or however you wish. Objects can be shared from the server using the default con
     from ipc.ipcserver import IPCServer
 
     # see the note below about the following 3 lines
-    path_to_shared_obj = os.path.join(xbmcaddon.Addon('insert addon name here').getAddonInfo('path'), 'resources', 'lib')
+    path_to_shared_obj = os.path.join(xbmcaddon.Addon('insert addon name here').getAddonInfo('path'),
+                         'resources', 'lib')
     if path_to_shared_obj not in sys.path:
         sys.path.insert(0, path_to_shared_obj)
 

@@ -50,6 +50,10 @@ from resources.lib.ipcclientx import IPCClientX
 from resources.lib.datastore import DataObjects
 import resources.lib.ipcclientxerrors as ipcclientxerrors
 
+# Globals
+server = None
+persist_dir = None
+
 
 class TestIPCClient(unittest.TestCase):
     def senddata(self, client):
@@ -160,8 +164,40 @@ class TestIPCClient(unittest.TestCase):
         self.client.raise_exception = False
         self.client.uri = tmp
 
+    def test_persistence(self):
+        global server
+        if server is None:
+            return
+        self.client.set('persist', 3.14159, author=self.name, persist=True)
+        server.stop()
+        server = None
+        server = IPCServer(DataObjects(persist_dir=persist_dir))
+        server.start()
+        x = self.client.get('persist', author=self.name, requestor='tests')
+        self.client.remove_persistence('persist', author=self.name)
+        self.assertEqual(x, 3.14159, msg='Failed persistence test')
+
+    def test_persistence_bu(self):
+        global server
+        if server is None:
+            return
+        self.client.set('persist', 3.14159, author=self.name, persist=True)
+        obj = self.client.get_exposed_object()
+        try:
+            obj.setautosave(False)
+        except Exception as e:
+            pass
+        server.stop()
+        server = None
+        server = IPCServer(DataObjects(persist_dir=persist_dir))
+        server.start()
+        x = self.client.get('persist', author=self.name, requestor='tests')
+        self.client.remove_persistence('persist', author=self.name)
+        self.assertEqual(x, 3.14159, msg='Failed persistence test')
+
 
 def runtests():
+    global server, persist_dir
     default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
     default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
     pyro4.config.COMMTIMEOUT = 2
@@ -176,7 +212,11 @@ def runtests():
     if client.server_available():
         serverstartedfortest = False
     else:
-        server = IPCServer(DataObjects())
+        if isKodi:
+            persist_dir = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore')
+        else:
+            persist_dir = r"C:\Users\Ken User\AppData\Roaming\XBMC\userdata\addon_data\service.ipcdatastore"
+        server = IPCServer(DataObjects(persist_dir=persist_dir))
         server.start()
         time.sleep(2)
         if not client.server_available():

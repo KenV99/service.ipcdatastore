@@ -42,8 +42,8 @@ There are several configurable settings for the addon:
    behavior. Exceptions are part of the testing.
 
 .. note::
-   When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified, an attempt will be made to
-   retrieve the object name, host name and port from that addon's settings.xml. Thus, if
+   When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified,
+   an attempt will be made to retrieve the object name, host name and port from that addon's settings.xml. Thus, if
    ``addon_id='service.ipcdatastore'`` is provided, then these settings will be read in, even if the code is running
    in another addon.
 
@@ -83,6 +83,10 @@ from IPCClient from script.module.ipc. This isn't truly necessary, but provides 
 
 Line 7 then stores the object using the :func:`set method <ipcclientx.IPCClientX.set>`, in this case, an integer using
 the name 'x'. The author is explicitly given using a keyword (optional).
+
+.. warning::
+   Do not use the tilde (**~**) in any data names or author names. This will cause errors if you decide to make any
+   of the data persistent between Kodi sessions.
 
 ????
 
@@ -140,6 +144,22 @@ This was implemented for performance purposes to minimize the amount of the data
 there is asynchronous data being provided and consumed, it will allow a consuming client to wait in a request loop
 without transferring the full data set with each request, for instance, if the client is waiting for new data. As might
 be expected, the impact of caching in this manner is small for small object sizes.
+
+----------------
+Data persistence
+----------------
+
+Individual data objects can be tagged for persistence betweeen data sessions as follows:
+
+::
+
+   client.set('x', 20, author='service.ipcdatastore', persist=True)
+
+During each set event for persistent data, a backup of the data is stored in a file and the data is tagged for
+persistence. If Kodi exits gracefully, at the time of shutdown, all data with persistence tags are written to disk in
+bulk as well. Upon startup, the server looks to see if Kodi exited normally and, if so, the data is read in from the
+bulk file. If not, the directory is searched for any backup files and those are loaded instead. This provides at least
+some protection should Kodi crash, however, do not rely upon this system for critical data restoration.
 
 ????
 

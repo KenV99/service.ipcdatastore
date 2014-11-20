@@ -69,23 +69,25 @@ class IPCClientX(IPCClient):
 
     def __init__(self, addon_id='', name='kodi-IPC', host='localhost', port=9099, datatype='pickle'):
         """
-        :param addon_id: *Optional keyword*. If specified, this supersedes the name/port/host. IPCClient checks settings.xml for the info.
+        :param addon_id: *Optional keyword*. If specified, this supersedes the name/port/host. IPCClient checks
+                            settings.xml for the info.
         :type addon_id: str
         :param name: *Optional keyword*. Arbitrary name for the object being used, must match the name used by server
         :type name: str
         :param port: *Optional keyword*. Port matching server port
         :type port: int
-        :param datatype: *Optional keyword*. Type of data transport being used options: pickle, serpent, json, marshall. Must match server
+        :param datatype: *Optional keyword*. Type of data transport being used options: pickle, serpent, json,
+                          marshall. Must match server.
         :type datatype: str
 
         There are two useful *public* attributes than can be changed after instantiation:
 
-        ==========================  ========================================================================================
+        ==========================  =============================================================================
         ``raise_exception``:        | When set to True, will raise exceptions that can be caught rather than
                                     | failing silently, which is the default behavior.
         ``num_of_server_retries``:  | If the client fails to connect to the server, the number of retries before
                                     | failing finally.
-        ==========================  ========================================================================================
+        ==========================  =============================================================================
 
         """
         super(IPCClientX, self).__init__(addon_id, name, host, port, datatype)
@@ -170,26 +172,28 @@ class IPCClientX(IPCClient):
             exc = ipcclientxerrors.NoError()
         return do, exc
 
-    def set(self, name, value, author=None):
+    def set(self, name, value, author=None, persist=False):
         """
         Sets a value on the server. Automatically adds the addon name as the author. The value is any valid object
-        that can be accepted by the chosen datatype (see :class:`above <IPCClientX>`). If the class attribute raise_exception is True,
-        will raise an exception with failure.
+        that can be accepted by the chosen datatype (see :class:`above <IPCClientX>`). If the class attribute
+        raise_exception is True, will raise an exception with failure.
 
         :param name: *Required*. The variable name
         :type name: str
         :param value: *Required*. The value of the variable
         :type name: Any object type compatible with the datatype transport
-        :param author: *Optional keyword*. The originator of the data which along with the variable name is used as the primary key
-                       for the backend dictionary for storing the item
+        :param author: *Optional keyword*. The originator of the data which along with the variable name is used
+                        as the primary key for the backend dictionary for storing the item.
         :type author: str
+        :param persist: Flag data to be saved between Kodi sessions
+        :type persist: bool
         :returns: True for success, False for failure
         :rtype: bool
 
         """
         if author is None:
             author = self.addonname
-        do, exc = self.__callwrapper('set', name, value, author)
+        do, exc = self.__callwrapper('set', name, value, author, persist)
         if exc.errno == ipcclientxerrors.IPCERROR_NONSERIALIZABLE:
             exc.updatemessage(value)
         if exc.errno != -1:
@@ -247,14 +251,15 @@ class IPCClientX(IPCClient):
 
         :param name: *Required*. The variable name
         :type name: str
-        :param author: *Optional keyword*. The author of the data. All of the data is indexed by author and variable name in order to reduce
-                        variable name overlap. If not supplied, the addon name is used.
+        :param author: *Optional keyword*. The author of the data. All of the data is indexed by author and variable
+                        name in order to reduce variable name overlap. If not supplied, the addon name is used.
         :type author: str
-        :param requestor: *Optional keyword*. The name of the requestor of the data. Defaults to the addon name if found. Used for caching
+        :param requestor: *Optional keyword*. The name of the requestor of the data. Defaults to the addon name if
+                            found. Used for caching.
         :type requestor: str
-        :param return_tuple: *Optional keyword*. Whether to return the stored object or a named tuple containing the object, the timestamp
-                             and a bool indicating that the object came from the local cache. The named tuple returns
-                             the the names value, ts and cached.
+        :param return_tuple: *Optional keyword*. Whether to return the stored object or a named tuple containing the
+                              object, the timestamp and a bool indicating that the object came from the local cache.
+                              The named tuple returns the value, ts and cached.
         :type return_tuple: bool
         :return: Either the value(object) assigned to 'name' or a :py:func:`namedtuple <collections.namedtuple>`
                  containing the value, ts and/or if the item came from the local cache.
@@ -431,7 +436,7 @@ class IPCClientX(IPCClient):
             author = self.addonname
         path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
         fn = os.path.join(path, '{0}-{1}.p'.format(self.addonname, author))
-        if xbmcvfs.exists(fn) == 1:
+        if xbmcvfs.exists('{0}.gz'.format(fn)) == 1:
             do, exc = self.__callwrapper('restoredata', author, fn)
             if exc.errno == ipcclientxerrors.IPCERROR_RESTOREFAILED:
                 exc.updatemessage(author, fn)
@@ -452,3 +457,50 @@ class IPCClientX(IPCClient):
                 raise exc
             else:
                 return False
+
+    def add_persistence(self, varname, author=None):
+        """
+        Adds a persistence tag to a pre-existing stored object and saves data to backup.
+
+        :param varname:
+        :type varname: str
+        :param author:
+        :type author: str
+        :return: True on success, False on failure
+        :rtype: bool
+        """
+        if author is None:
+            author = self.addonname
+        do, exc = self.__callwrapper('add_persistence', varname, author)
+        if exc.errno != -1:
+            if self.raise_exception:
+                self.logexception(exc)
+                raise exc
+            else:
+                return False
+        else:
+            return True
+
+    def remove_persistence(self, varname, author=None):
+        """
+        Removes the persistence tag from a stored object and deletes it from backup.
+
+        :param varname:
+        :type varname: str
+        :param author:
+        :type author: str
+        :return: True on success, False on failure
+        :rtype: bool
+        """
+        if author is None:
+            author = self.addonname
+        do, exc = self.__callwrapper('remove_persistence', varname, author)
+        if exc.errno != -1:
+            if self.raise_exception:
+                self.logexception(exc)
+                raise exc
+            else:
+                return False
+        else:
+            return True
+
