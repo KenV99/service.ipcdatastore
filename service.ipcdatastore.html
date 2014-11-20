@@ -67,6 +67,7 @@
 <li><a class="reference internal" href="#add-on-settings-page">Add On Settings Page</a></li>
 <li><a class="reference internal" href="#simple-use-case-of-ipcclientx">Simple use case of IPCClientX</a><ul>
 <li><a class="reference internal" href="#caching-mechanism">Caching mechanism</a></li>
+<li><a class="reference internal" href="#data-persistence">Data persistence</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#module-ipcclientx">Class methods from service.ipcdatastore</a></li>
@@ -146,8 +147,8 @@ behavior. Exceptions are part of the testing.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">When using the class IPCClientX (described <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">below</span></code></a>) if the addon id is specified, an attempt will be made to
-retrieve the object name, host name and port from that addon&#8217;s settings.xml. Thus, if
+<p class="last">When using the class IPCClientX (described <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">below</span></code></a>) if the addon id is specified,
+an attempt will be made to retrieve the object name, host name and port from that addon&#8217;s settings.xml. Thus, if
 <code class="docutils literal"><span class="pre">addon_id='service.ipcdatastore'</span></code> is provided, then these settings will be read in, even if the code is running
 in another addon.</p>
 </div>
@@ -184,6 +185,11 @@ settings at the time of instantiation instead of having to hard code it.</p>
 from IPCClient from script.module.ipc. This isn&#8217;t truly necessary, but provides a graceful means of failure if the server is not up.</p>
 <p>Line 7 then stores the object using the <a class="reference internal" href="#ipcclientx.IPCClientX.set" title="ipcclientx.IPCClientX.set"><code class="xref py py-func docutils literal"><span class="pre">set</span> <span class="pre">method</span></code></a>, in this case, an integer using
 the name &#8216;x&#8217;. The author is explicitly given using a keyword (optional).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use the tilde (<strong>~</strong>) in any data names or author names. This will cause errors if you decide to make any
+of the data persistent between Kodi sessions.</p>
+</div>
 <hr class="docutils" />
 <dl class="docutils">
 <dt>Retrieving the data is much as expected except that there are two additional optional keyword parameters:</dt>
@@ -250,6 +256,18 @@ there is asynchronous data being provided and consumed, it will allow a consumin
 without transferring the full data set with each request, for instance, if the client is waiting for new data. As might
 be expected, the impact of caching in this manner is small for small object sizes.</p>
 </div>
+<div class="section" id="data-persistence">
+<h3>Data persistence<a class="headerlink" href="#data-persistence" title="Permalink to this headline">¶</a></h3>
+<p>Individual data objects can be tagged for persistence betweeen data sessions as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">client</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>During each set event for persistent data, a backup of the data is stored in a file and the data is tagged for
+persistence. If Kodi exits gracefully, at the time of shutdown, all data with persistence tags are written to disk in
+bulk as well. Upon startup, the server looks to see if Kodi exited normally and, if so, the data is read in from the
+bulk file. If not, the directory is searched for any backup files and those are loaded instead. This provides at least
+some protection should Kodi crash, however, do not rely upon this system for critical data restoration.</p>
+</div>
 </div>
 <hr class="docutils" />
 <div class="section" id="module-ipcclientx">
@@ -264,10 +282,12 @@ be expected, the impact of caching in this manner is small for small object size
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>addon_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. If specified, this supersedes the name/port/host. IPCClient checks settings.xml for the info.</li>
+<li><strong>addon_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. If specified, this supersedes the name/port/host. IPCClient checks
+settings.xml for the info.</li>
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Arbitrary name for the object being used, must match the name used by server</li>
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. Port matching server port</li>
-<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
+<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json,
+marshall. Must match server.</li>
 </ul>
 </td>
 </tr>
@@ -276,8 +296,8 @@ be expected, the impact of caching in this manner is small for small object size
 <p>There are two useful <em>public</em> attributes than can be changed after instantiation:</p>
 <table border="1" class="docutils">
 <colgroup>
-<col width="23%" />
-<col width="77%" />
+<col width="25%" />
+<col width="75%" />
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><code class="docutils literal"><span class="pre">raise_exception</span></code>:</td>
@@ -298,10 +318,10 @@ be expected, the impact of caching in this manner is small for small object size
 </table>
 <dl class="method">
 <dt id="ipcclientx.IPCClientX.set">
-<code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author=None</em>, <em>persist=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets a value on the server. Automatically adds the addon name as the author. The value is any valid object
-that can be accepted by the chosen datatype (see <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">above</span></code></a>). If the class attribute raise_exception is True,
-will raise an exception with failure.</p>
+that can be accepted by the chosen datatype (see <a class="reference internal" href="#ipcclientx.IPCClientX" title="ipcclientx.IPCClientX"><code class="xref py py-class docutils literal"><span class="pre">above</span></code></a>). If the class attribute
+raise_exception is True, will raise an exception with failure.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -309,8 +329,9 @@ will raise an exception with failure.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>name</strong> (<em>Any object type compatible with the datatype transport</em>) &#8211; <em>Required</em>. The variable name</li>
 <li><strong>value</strong> &#8211; <em>Required</em>. The value of the variable</li>
-<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The originator of the data which along with the variable name is used as the primary key
-for the backend dictionary for storing the item</li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The originator of the data which along with the variable name is used
+as the primary key for the backend dictionary for storing the item.</li>
+<li><strong>persist</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Flag data to be saved between Kodi sessions</li>
 </ul>
 </td>
 </tr>
@@ -347,12 +368,13 @@ piece of data that is received is locally cached for this purpose.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Required</em>. The variable name</li>
-<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The author of the data. All of the data is indexed by author and variable name in order to reduce
-variable name overlap. If not supplied, the addon name is used.</li>
-<li><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The name of the requestor of the data. Defaults to the addon name if found. Used for caching</li>
-<li><strong>return_tuple</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; <em>Optional keyword</em>. Whether to return the stored object or a named tuple containing the object, the timestamp
-and a bool indicating that the object came from the local cache. The named tuple returns
-the the names value, ts and cached.</li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The author of the data. All of the data is indexed by author and variable
+name in order to reduce variable name overlap. If not supplied, the addon name is used.</li>
+<li><strong>requestor</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The name of the requestor of the data. Defaults to the addon name if
+found. Used for caching.</li>
+<li><strong>return_tuple</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; <em>Optional keyword</em>. Whether to return the stored object or a named tuple containing the
+object, the timestamp and a bool indicating that the object came from the local cache.
+The named tuple returns the value, ts and cached.</li>
 </ul>
 </td>
 </tr>
@@ -467,6 +489,54 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
 </tr>
 <tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcclientx.IPCClientX.add_persistence">
+<code class="descname">add_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.add_persistence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a persistence tag to a pre-existing stored object and saves data to backup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>varname</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcclientx.IPCClientX.remove_persistence">
+<code class="descname">remove_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.remove_persistence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the persistence tag from a stored object and deletes it from backup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>varname</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
 </tr>
 </tbody>
 </table>
@@ -623,7 +693,7 @@ in the datastore dict.</p>
 
 <dl class="class">
 <dt id="datastore.DataObjectX">
-<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjectX</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjectX" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjectX</code><span class="sig-paren">(</span><em>value</em>, <em>persist=False</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjectX" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#datastore.DataObjectBase" title="datastore.DataObjectBase"><code class="xref py py-class docutils literal"><span class="pre">datastore.DataObjectBase</span></code></a></p>
 <p>Class used to store objects in the datastore. Extends <code class="xref py py-class docutils literal"><span class="pre">datastore.DataOnject</span></code> with a dict of requestors</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -638,12 +708,30 @@ in the datastore dict.</p>
 
 <dl class="class">
 <dt id="datastore.DataObjects">
-<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjects</code><a class="headerlink" href="#datastore.DataObjects" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">datastore.</code><code class="descname">DataObjects</code><span class="sig-paren">(</span><em>persist_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
 <p>The actual datastore object whose methods are exposed via pyro4.proxy</p>
+<p>If you desire to allow data to persist between Kodi sessions, the directory to store persistent data
+is needed at the time of instantiation in order to restore any saved data, if any exists.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>persist_dir</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; the directory where the persistent data is stored</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="datastore.DataObjects.setautosave">
+<code class="descname">setautosave</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.setautosave" title="Permalink to this definition">¶</a></dt>
+<dd><p>If True will save data when object deleted or .close() called
+:param val: True or False
+:type val: bool</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="datastore.DataObjects.set">
-<code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.set" title="Permalink to this definition">¶</a></dt>
+<code class="descname">set</code><span class="sig-paren">(</span><em>name</em>, <em>value</em>, <em>author</em>, <em>persist=False</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.set" title="Permalink to this definition">¶</a></dt>
 <dd><table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -652,6 +740,7 @@ in the datastore dict.</p>
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
 <li><strong>value</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><em>object</em></a>) &#8211; </li>
 <li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>persist</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; </li>
 </ul>
 </td>
 </tr>
@@ -697,7 +786,6 @@ in the datastore dict.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
 <li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
-<li><strong>force</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; </li>
 </ul>
 </td>
 </tr>
@@ -802,6 +890,36 @@ in the datastore dict.</p>
 </table>
 </dd></dl>
 
+<dl class="method">
+<dt id="datastore.DataObjects.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Explicitly write persistent data to a file in anticipation of shutting down.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.add_persistence">
+<code class="descname">add_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.add_persistence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a persistence tag to a pre-existing stored object and saves data to backup.
+:param varname:
+:type varname: str
+:param author:
+:type author: str
+:return: True on success, False on failure
+:rtype: bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datastore.DataObjects.remove_persistence">
+<code class="descname">remove_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.remove_persistence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the persistence tag from a stored object and deletes it from backup.
+:param varname:
+:type varname: str
+:param author:
+:type author: str
+:return: True on success, False on failure
+:rtype: bool</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
@@ -830,7 +948,7 @@ in the datastore dict.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
-      Last updated on Nov 18, 2014.
+      Last updated on Nov 20, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>

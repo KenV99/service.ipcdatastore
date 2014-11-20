@@ -157,13 +157,15 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 15
 16
 17
-18</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+18
+19</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">xbmc</span><span class="o">,</span> <span class="nn">xbmcaddon</span>
 <span class="kn">from</span> <span class="nn">ipc.ipcserver</span> <span class="kn">import</span> <span class="n">IPCServer</span>
 
 <span class="c"># see the note below about the following 3 lines</span>
-<span class="n">path_to_shared_obj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xbmcaddon</span><span class="o">.</span><span class="n">Addon</span><span class="p">(</span><span class="s">&#39;insert addon name here&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">getAddonInfo</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">),</span> <span class="s">&#39;resources&#39;</span><span class="p">,</span> <span class="s">&#39;lib&#39;</span><span class="p">)</span>
+<span class="n">path_to_shared_obj</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">xbmcaddon</span><span class="o">.</span><span class="n">Addon</span><span class="p">(</span><span class="s">&#39;insert addon name here&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">getAddonInfo</span><span class="p">(</span><span class="s">&#39;path&#39;</span><span class="p">),</span>
+                     <span class="s">&#39;resources&#39;</span><span class="p">,</span> <span class="s">&#39;lib&#39;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">path_to_shared_obj</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
     <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">path_to_shared_obj</span><span class="p">)</span>
 
@@ -222,12 +224,13 @@ by calling the stop() method. Note that if you plan to run more than one server,
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>expose_obj</strong> (<em>object or classic class</em>) &#8211; <em>Required</em>. This is the python object whose methods will be exposed to the clients</li>
-<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml file.
-This supercedes any explicit keyword assignments for name, host and port.</li>
+<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml
+file. This supercedes any explicit keyword assignments for name, host and port.</li>
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The arbitrary name used by the socket protocol for this datastore.</li>
 <li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The host that will be used for the server.</li>
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. The port for the socket used.</li>
-<li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The serialization protocol to be used. Options: pickle, serpent, marshall, json</li>
+<li><strong>serializer</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The serialization protocol to be used. Options: pickle, serpent,
+marshall, json</li>
 </ul>
 </td>
 </tr>
@@ -237,14 +240,22 @@ This supercedes any explicit keyword assignments for name, host and port.</li>
 <dt id="ipcserver.IPCServer.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Note that you must call .start() on the class instance to start the server in a separate thread.
-Do not call run() directly with IPCServer.run() or it will run in the same thread as the caller and lock when it
-hits daemon.requestLoop().</p>
+Do not call run() directly with IPCServer.run() or it will run in the same thread as the caller and
+lock when it hits daemon.requestLoop().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcserver.IPCServer.is_running">
+<code class="descname">is_running</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.is_running" title="Permalink to this definition">¶</a></dt>
+<dd><p>Required to be able to stop the request loop and shutdown the server threads</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ipcserver.IPCServer.stop">
 <code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stops the server. Raises an exception on failure</p>
+<dd><p>Stops the server. Raises an exception on failure.
+If the exposed object has a method called &#8216;close&#8217;, this is called before the server stops.
+There are two 20msec delays to allow any pending data to propagate.</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -280,12 +291,13 @@ and need not be done explicitly. See pyro4 docs at <a class="reference external"
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml file.
-This supercedes any explicit eyword assignments for name, host and port.</li>
+<li><strong>add_on_id</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The id of an addon which has stored server settings in its settings.xml
+file. This supercedes any explicit eyword assignments for name, host and port.</li>
 <li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Arbitrary name for the object being used, must match the name used by server</li>
 <li><strong>host</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The resolvable name or IP address where the server is running</li>
 <li><strong>port</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#int" title="(in Python v2.7)"><em>int</em></a>) &#8211; <em>Optional keyword</em>. Port matching server port</li>
-<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json, marshall. Must match server</li>
+<li><strong>datatype</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. Type of data transport being used options: pickle, serpent, json, marshall.
+Must match server.</li>
 </ul>
 </td>
 </tr>
@@ -370,7 +382,7 @@ informative for these types of errors.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
-      Last updated on Nov 18, 2014.
+      Last updated on Nov 20, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>
