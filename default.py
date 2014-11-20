@@ -68,12 +68,8 @@ def testclient():
     #    'script.ipcclient'
     client = IPCClientX(addon_id='service.ipcdatastore')
     xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
-    dl = client.get_data_list()
-    print dl
     client.set('x', 20, persist=True)
     y = client.get('x')
-    dl = client.get_data_list()
-    print dl
     if y != 20:
         raise ValueError('*&*&*&*& ipcdatastore: IPC Server check failed')
     else:
