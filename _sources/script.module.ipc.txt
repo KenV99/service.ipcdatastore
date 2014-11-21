@@ -61,10 +61,14 @@ or however you wish. Objects can be shared from the server using the default con
 
     obj = MyObjectToBeShared()
     myserver = IPCServer(expose_obj=obj)
-    myserver.start()
-    while not xbmc.abortRequested:
-        xbmc.sleep(1000)
-    myserver.stop()
+    try:
+        myserver.start()
+    except Exception as e:
+        my_error_handler(e)
+    else:
+        while not xbmc.abortRequested:
+            xbmc.sleep(1000)
+        myserver.stop()
 
 .. note::
 
@@ -74,8 +78,12 @@ or however you wish. Objects can be shared from the server using the default con
 
 .. warning::
 
-    Under rare circumstances, if Kodi exits erroneously without getting to line 18, the Kodi process may remain running
-    despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed manually.
+    Under rare circumstances, if Kodi exits erroneously without calling IPCServer.stop(), the Kodi process may remain
+    running despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed
+    manually.
+
+The manner in which the start() method is implemented allows exception trapping in the manner shown. The most common
+cause of exceptions, if not using a nameserver, is if the port is already in use. This raises a socket.error exception.
 
 Once the server is running, the shared object can be used on the client, again using the default configuration as
 an example:

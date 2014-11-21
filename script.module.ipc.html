@@ -158,7 +158,11 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 16
 17
 18
-19</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
+19
+20
+21
+22
+23</pre></div></td><td class="code"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">xbmc</span><span class="o">,</span> <span class="nn">xbmcaddon</span>
 <span class="kn">from</span> <span class="nn">ipc.ipcserver</span> <span class="kn">import</span> <span class="n">IPCServer</span>
@@ -173,10 +177,14 @@ helper classes do not utilize a nameserver. They are meant to be imported as:</p
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">MyObjectToBeShared</span><span class="p">()</span>
 <span class="n">myserver</span> <span class="o">=</span> <span class="n">IPCServer</span><span class="p">(</span><span class="n">expose_obj</span><span class="o">=</span><span class="n">obj</span><span class="p">)</span>
-<span class="n">myserver</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="k">while</span> <span class="ow">not</span> <span class="n">xbmc</span><span class="o">.</span><span class="n">abortRequested</span><span class="p">:</span>
-    <span class="n">xbmc</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
-<span class="n">myserver</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">myserver</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">my_error_handler</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">xbmc</span><span class="o">.</span><span class="n">abortRequested</span><span class="p">:</span>
+        <span class="n">xbmc</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+    <span class="n">myserver</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
 </pre></div>
 </td></tr></table></div>
 <div class="admonition note">
@@ -187,9 +195,12 @@ in the PYTHONPATH by using sys.path as shown.</p>
 </div>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Under rare circumstances, if Kodi exits erroneously without getting to line 18, the Kodi process may remain running
-despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed manually.</p>
+<p class="last">Under rare circumstances, if Kodi exits erroneously without calling IPCServer.stop(), the Kodi process may remain
+running despite the GUI being gone. If this occurs, Kodi may not be able to restart until the process is killed
+manually.</p>
 </div>
+<p>The manner in which the start() method is implemented allows exception trapping in the manner shown. The most common
+cause of exceptions, if not using a nameserver, is if the port is already in use. This raises a socket.error exception.</p>
 <p>Once the server is running, the shared object can be used on the client, again using the default configuration as
 an example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">ipc.ipcclient</span> <span class="kn">import</span> <span class="n">IPCClient</span>
@@ -241,21 +252,14 @@ marshall, json</li>
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Note that you must call .start() on the class instance to start the server in a separate thread.
 Do not call run() directly with IPCServer.run() or it will run in the same thread as the caller and
-lock when it hits daemon.requestLoop().</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="ipcserver.IPCServer.is_running">
-<code class="descname">is_running</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.is_running" title="Permalink to this definition">¶</a></dt>
-<dd><p>Required to be able to stop the request loop and shutdown the server threads</p>
+lock when it hits daemon.requestLoop(). If port unavailable, retries 5 times with a 10ms delay between tries.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="ipcserver.IPCServer.stop">
 <code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.stop" title="Permalink to this definition">¶</a></dt>
-<dd><p>Stops the server. Raises an exception on failure.
-If the exposed object has a method called &#8216;close&#8217;, this is called before the server stops.
-There are two 20msec delays to allow any pending data to propagate.</p>
+<dd><p>Stops the server. If the exposed object has a method called &#8216;close&#8217;, this is called before the server stops.
+There is a 50msec delays to allow any pending data to propagate.</p>
 </dd></dl>
 
 <dl class="staticmethod">
@@ -275,6 +279,13 @@ sharing protocol).</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcserver.IPCServer.start">
+<code class="descname">start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#ipcserver.IPCServer.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overrides base start() and then calls it via super. Main purpose is to provide a way to monitor for exceptions
+during startup from the inside loop that otherwise could not be easily raised and caught.</p>
 </dd></dl>
 
 </dd></dl>
@@ -382,7 +393,7 @@ informative for these types of errors.</p>
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
-      Last updated on Nov 20, 2014.
+      Last updated on Nov 21, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>

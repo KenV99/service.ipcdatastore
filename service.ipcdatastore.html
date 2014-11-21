@@ -142,8 +142,8 @@ disable and re-enable the addon in order for the changes to take effect.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">When the more detailed testing suite is run, several exceptions will appear in the xbmc.log file. This is expected
-behavior. Exceptions are part of the testing.</p>
+<p class="last">When the more detailed testing suite is run, several exceptions will appear in the kodi.log (xbmc.log) file.
+This is expected behavior. Exceptions are part of the testing.</p>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -262,7 +262,7 @@ be expected, the impact of caching in this manner is small for small object size
 <div class="highlight-python"><div class="highlight"><pre><span class="n">client</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">author</span><span class="o">=</span><span class="s">&#39;service.ipcdatastore&#39;</span><span class="p">,</span> <span class="n">persist</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>During each set event for persistent data, a backup of the data is stored in a file and the data is tagged for
+<p>During each <strong>set</strong> event for persistent data, a backup of the data is stored in a file and the data is tagged for
 persistence. If Kodi exits gracefully, at the time of shutdown, all data with persistence tags are written to disk in
 bulk as well. Upon startup, the server looks to see if Kodi exited normally and, if so, the data is read in from the
 bulk file. If not, the directory is searched for any backup files and those are loaded instead. This provides at least
@@ -395,15 +395,26 @@ containing the value, ts and/or if the item came from the local cache.</p>
 <code class="descname">delete</code><span class="sig-paren">(</span><em>name</em>, <em>author=None</em>, <em>return_tuple=False</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes an item from the datastore and returns the deleted item&#8217;s value. Returns None if not found or raises
 an exception if the IPCClientX.raise_exceptions attribute is set to True. The return item is optionally returned
-as a namedtuple (see <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">get()</span></code></a>).
-:param name: <em>Required</em>. The name of the variable to be deleted.
-:type name: str
-:param author: <em>Optional keyword</em>. The author of the data. Defaults to the addon id.
-:type author:
-:param return_tuple: <em>Optional keyword</em>. Flag to return data as namedtuple as in <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">ipcclientx.IPCClientX.get()</span></code></a>
-:type return_tuple: bool
-:return:
-:rtype: object or <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, None on failure</p>
+as a namedtuple (see <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">get()</span></code></a>).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Required</em>. The name of the variable to be deleted.</li>
+<li><strong>author</strong> &#8211; <em>Optional keyword</em>. The author of the data. Defaults to the addon id.</li>
+<li><strong>return_tuple</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; <em>Optional keyword</em>. Flag to return data as namedtuple as in <a class="reference internal" href="#ipcclientx.IPCClientX.get" title="ipcclientx.IPCClientX.get"><code class="xref py py-func docutils literal"><span class="pre">ipcclientx.IPCClientX.get()</span></code></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">object or <a class="reference external" href="http://docs.python.org/2/library/collections.html#collections.namedtuple" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">namedtuple</span></code></a>, None on failure</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -480,6 +491,24 @@ service.ipcdatastore. Plan is to implement a way to do this automatically on ser
 <dt id="ipcclientx.IPCClientX.restoredata">
 <code class="descname">restoredata</code><span class="sig-paren">(</span><em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.restoredata" title="Permalink to this definition">¶</a></dt>
 <dd><p>Restores data on the server from a previously saved pickle (see <a class="reference internal" href="#ipcclientx.IPCClientX.savedata" title="ipcclientx.IPCClientX.savedata"><code class="xref py py-func docutils literal"><span class="pre">savedata()</span></code></a>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; <em>Optional keyword</em>. The author whose data is to be restored. Defaults to addon id.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True on success, False on failure</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="ipcclientx.IPCClientX.delete_data">
+<code class="descname">delete_data</code><span class="sig-paren">(</span><em>author=None</em><span class="sig-paren">)</span><a class="headerlink" href="#ipcclientx.IPCClientX.delete_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete data on the server in the form of a previously saved pickle (see <a class="reference internal" href="#ipcclientx.IPCClientX.savedata" title="ipcclientx.IPCClientX.savedata"><code class="xref py py-func docutils literal"><span class="pre">savedata()</span></code></a>)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -724,9 +753,15 @@ is needed at the time of instantiation in order to restore any saved data, if an
 <dl class="method">
 <dt id="datastore.DataObjects.setautosave">
 <code class="descname">setautosave</code><span class="sig-paren">(</span><em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.setautosave" title="Permalink to this definition">¶</a></dt>
-<dd><p>If True will save data when object deleted or .close() called
-:param val: True or False
-:type val: bool</p>
+<dd><p>If True will save data when object deleted or .close() called</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>val</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; True or False</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -899,25 +934,49 @@ is needed at the time of instantiation in order to restore any saved data, if an
 <dl class="method">
 <dt id="datastore.DataObjects.add_persistence">
 <code class="descname">add_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.add_persistence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a persistence tag to a pre-existing stored object and saves data to backup.
-:param varname:
-:type varname: str
-:param author:
-:type author: str
-:return: True on success, False on failure
-:rtype: bool</p>
+<dd><p>Adds a persistence tag to a pre-existing stored object and saves data to backup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>varname</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="datastore.DataObjects.remove_persistence">
 <code class="descname">remove_persistence</code><span class="sig-paren">(</span><em>varname</em>, <em>author</em><span class="sig-paren">)</span><a class="headerlink" href="#datastore.DataObjects.remove_persistence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Removes the persistence tag from a stored object and deletes it from backup.
-:param varname:
-:type varname: str
-:param author:
-:type author: str
-:return: True on success, False on failure
-:rtype: bool</p>
+<dd><p>Removes the persistence tag from a stored object and deletes it from backup.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>varname</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+<li><strong>author</strong> (<a class="reference external" href="http://docs.python.org/2/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True on success, False on failure</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -948,7 +1007,7 @@ is needed at the time of instantiation in order to restore any saved data, if an
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2014, KenV99.
-      Last updated on Nov 20, 2014.
+      Last updated on Nov 21, 2014.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3b1.
     </div>
   </body>
