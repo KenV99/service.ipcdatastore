@@ -308,6 +308,7 @@ class IPCClientX(IPCClient):
         Deletes an item from the datastore and returns the deleted item's value. Returns None if not found or raises
         an exception if the IPCClientX.raise_exceptions attribute is set to True. The return item is optionally returned
         as a namedtuple (see :func:`get() <IPCClientX.get>`).
+
         :param name: *Required*. The name of the variable to be deleted.
         :type name: str
         :param author: *Optional keyword*. The author of the data. Defaults to the addon id.
@@ -453,6 +454,40 @@ class IPCClientX(IPCClient):
             if self.raise_exception:
                 exc = ipcclientxerrors.RestoreFailedError
                 exc.updatemessage(author, fn)
+                exc.message += " File Not Found"
+                raise exc
+            else:
+                return False
+
+    def delete_data(self, author=None):
+        """
+        Delete data on the server in the form of a previously saved pickle (see :func:`savedata() <IPCClientX.savedata>`)
+
+        :param author: *Optional keyword*. The author whose data is to be restored. Defaults to addon id.
+        :type author: str
+        :return: True on success, False on failure
+        :rtype: bool
+
+        """
+        if author is None:
+            author = self.addonname
+        path = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/')
+        fn = os.path.join(path, '{0}-{1}.p.gz'.format(self.addonname, author))
+        if xbmcvfs.exists(fn) == 1:
+            try:
+                os.remove(fn)
+            except Exception as e:
+                if self.raise_exception:
+                    exc = ipcclientxerrors.UnknownError
+                    exc.message += " File Not Found"
+                    raise exc
+                else:
+                    return False
+            else:
+                return True
+        else:
+            if self.raise_exception:
+                exc = ipcclientxerrors.UnknownError
                 exc.message += " File Not Found"
                 raise exc
             else:

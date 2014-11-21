@@ -19,6 +19,7 @@
 
 import sys
 import os
+import shutil
 import stat
 import time
 import unittest
@@ -32,9 +33,7 @@ if isKodi:
     import xbmcgui
     import xbmcaddon
     import xbmcvfs
-
-    __settings__ = xbmcaddon.Addon("service.ipcdatastore")
-    __language__ = __settings__.getLocalizedString
+    __language__ = xbmcaddon.Addon("service.ipcdatastore").getLocalizedString
 
     # ensure aceess to required script.module. Currently an issue in Helix Beta 2
     path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
@@ -53,6 +52,7 @@ import resources.lib.ipcclientxerrors as ipcclientxerrors
 # Globals
 server = None
 persist_dir = None
+port = None
 
 
 class TestIPCClient(unittest.TestCase):
@@ -124,6 +124,7 @@ class TestIPCClient(unittest.TestCase):
         dl = self.client.get_data_list()[self.name]
         k = self.data.keys()
         self.assertEqual(dl.sort(), k.sort(), msg='Failed save/restore')
+        self.client.delete_data(self.name)
 
     def test_unserializable_error(self):
         self.client.raise_exception = True
@@ -166,12 +167,13 @@ class TestIPCClient(unittest.TestCase):
 
     def test_persistence(self):
         global server
-        if server is None:
-            return
         self.client.set('persist', 3.14159, author=self.name, persist=True)
         server.stop()
+        while True:
+            if server.shutdown is True:
+                break
         server = None
-        server = IPCServer(DataObjects(persist_dir=persist_dir))
+        server = IPCServer(DataObjects(persist_dir=persist_dir), port=port)
         server.start()
         x = self.client.get('persist', author=self.name, requestor='tests')
         self.client.remove_persistence('persist', author=self.name)
@@ -179,8 +181,6 @@ class TestIPCClient(unittest.TestCase):
 
     def test_persistence_bu(self):
         global server
-        if server is None:
-            return
         self.client.set('persist', 3.14159, author=self.name, persist=True)
         obj = self.client.get_exposed_object()
         try:
@@ -188,8 +188,11 @@ class TestIPCClient(unittest.TestCase):
         except Exception as e:
             pass
         server.stop()
+        while True:
+            if server.shutdown is True:
+                break
         server = None
-        server = IPCServer(DataObjects(persist_dir=persist_dir))
+        server = IPCServer(DataObjects(persist_dir=persist_dir), port=port)
         server.start()
         x = self.client.get('persist', author=self.name, requestor='tests')
         self.client.remove_persistence('persist', author=self.name)
@@ -197,41 +200,42 @@ class TestIPCClient(unittest.TestCase):
 
 
 def runtests():
-    global server, persist_dir
+    global server, persist_dir, port
     default_dir_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
     default_file_mod = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
     pyro4.config.COMMTIMEOUT = 2
-    client = IPCClientX()
     if isKodi:
         dialog = xbmcgui.Dialog()
         ret = dialog.yesno(__language__(32011), __language__(32012), __language__(32013))
         if ret == 0:
             return
-        else:
-            xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
-    if client.server_available():
-        serverstartedfortest = False
+        port = int(xbmcaddon.Addon("service.ipcdatastore").getSetting('port')) + 20
+        persist_dir = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore/tests')
     else:
-        if isKodi:
-            persist_dir = xbmc.translatePath('special://masterprofile/addon_data/service.ipcdatastore')
-        else:
-            persist_dir = r"C:\Users\Ken User\AppData\Roaming\XBMC\userdata\addon_data\service.ipcdatastore"
-        server = IPCServer(DataObjects(persist_dir=persist_dir))
-        server.start()
-        time.sleep(2)
-        if not client.server_available():
-            if isKodi:
-                dialog = xbmcgui.Dialog()
-                dialog.ok(__language__(32011), __language__(32014))
-                return
-            else:
-                print 'Server down and could not be started'
-                return
-        else:
-            serverstartedfortest = True
-
+        port = 9099
+        persist_dir = r"C:\Users\Ken User\AppData\Roaming\XBMC\userdata\addon_data\service.ipcdatastore\tests"
+    if os.path.exists(persist_dir) is False:
+        os.mkdir(persist_dir, default_dir_mod)
+    else:
+        os.chmod(persist_dir, default_dir_mod)
+    server = IPCServer(DataObjects(persist_dir=persist_dir), port=port)
+    server.start()
+    time.sleep(2)
+    client = IPCClientX(port=port)
     if isKodi:
-        path = xbmc.translatePath(r'special://masterprofile/addon_data/service.ipcdatastore/')
+        xbmc.log('*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri))
+    else:
+        print '*&*&*&*& ipcdatastore: Attempting to contact server at: {0}'.format(client.uri)
+    if not client.server_available():
+        if isKodi:
+            dialog = xbmcgui.Dialog()
+            dialog.ok(__language__(32011), __language__(32014))
+            return
+        else:
+            print 'Server down and could not be started'
+            return
+    if isKodi:
+        path = xbmc.translatePath(r'special://masterprofile/addon_data/service.ipcdatastore')
         if xbmcvfs.exists(path) == 0:
             xbmcvfs.mkdirs(path)
         os.chmod(path, default_dir_mod)
@@ -243,18 +247,9 @@ def runtests():
     try:
         with open(fn, 'a') as logf:
             logf.write('\n\nTests Started: {0}\n'.format(time.strftime('%x %I:%M %p %Z')))
-            if serverstartedfortest:
-                logf.write('Server started for testing\n\n')
-            else:
-                logf.write('Using server previously started for tests\n')
             suite = unittest.TestLoader().loadTestsFromTestCase(TestIPCClient)
             unittest.TextTestRunner(stream=logf, verbosity=2).run(suite)
-            if serverstartedfortest:
-                logf.write('Stopping server\n')
-                server.stop()
-            else:
-                client = IPCClientX()
-                client.set('x', 20, 'ipcdatastore')
+        server.stop()
     except Exception as e:
         if isKodi:
             dialog = xbmcgui.Dialog()
@@ -270,6 +265,7 @@ def runtests():
             if hasattr(sys.exc_info()[2], 'format_exc'):
                 xbmc.log(sys.exc_info()[2].format_exc())
         return
+    shutil.rmtree(persist_dir)
     if isKodi:
         os.chmod(path, default_dir_mod)
         os.chmod(fn, default_file_mod)

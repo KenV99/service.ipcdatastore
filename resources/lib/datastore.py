@@ -205,6 +205,7 @@ class DataObjects(object):
     def setautosave(self, val):
         """
         If True will save data when object deleted or .close() called
+
         :param val: True or False
         :type val: bool
         """
@@ -359,7 +360,7 @@ class DataObjects(object):
         Explicitly write persistent data to a file in anticipation of shutting down.
 
         """
-        if self.persist_dir is not None:
+        if self.persist_dir is not None and self.autosave is True:
             self._savepersist(DataObjects.STATE_CLOSED)
         self.__state = DataObjects.STATE_CLOSED
 
@@ -427,6 +428,7 @@ class DataObjects(object):
     def add_persistence(self, varname, author):
         """
         Adds a persistence tag to a pre-existing stored object and saves data to backup.
+
         :param varname:
         :type varname: str
         :param author:
@@ -445,6 +447,7 @@ class DataObjects(object):
     def remove_persistence(self, varname, author):
         """
         Removes the persistence tag from a stored object and deletes it from backup.
+
         :param varname:
         :type varname: str
         :param author:

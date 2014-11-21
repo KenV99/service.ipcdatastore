@@ -38,8 +38,8 @@ There are several configurable settings for the addon:
    disable and re-enable the addon in order for the changes to take effect.
 
 .. note::
-   When the more detailed testing suite is run, several exceptions will appear in the xbmc.log file. This is expected
-   behavior. Exceptions are part of the testing.
+   When the more detailed testing suite is run, several exceptions will appear in the kodi.log (xbmc.log) file.
+   This is expected behavior. Exceptions are part of the testing.
 
 .. note::
    When using the class IPCClientX (described :class:`below <ipcclientx.IPCClientX>`) if the addon id is specified,
@@ -155,7 +155,7 @@ Individual data objects can be tagged for persistence betweeen data sessions as 
 
    client.set('x', 20, author='service.ipcdatastore', persist=True)
 
-During each set event for persistent data, a backup of the data is stored in a file and the data is tagged for
+During each **set** event for persistent data, a backup of the data is stored in a file and the data is tagged for
 persistence. If Kodi exits gracefully, at the time of shutdown, all data with persistence tags are written to disk in
 bulk as well. Upon startup, the server looks to see if Kodi exited normally and, if so, the data is read in from the
 bulk file. If not, the directory is searched for any backup files and those are loaded instead. This provides at least

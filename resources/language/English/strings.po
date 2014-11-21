@@ -57,7 +57,7 @@ msgid "IPC Server Tests"
 msgstr ""
 
 msgctxt "#32012"
-msgid "Testing will delete all data currently stored"
+msgid "Testing may take up to 10 sec"
 msgstr ""
 
 msgctxt "#32013"

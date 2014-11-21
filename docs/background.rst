@@ -53,5 +53,6 @@ Features of service.ipcdatastore
 - Configurable host and port
 - Utilizes a combined server/client caching mechanism for improved performance
 - Tests run at the time of startup and additional tests via the settings page
-- Optionally automatically place video info on the server each time a file or stream plays
+- Optionally make data persisent between Kodi sessions
+- Optionally automatically place video info on the server each time a file or stream plays (demo)
 
