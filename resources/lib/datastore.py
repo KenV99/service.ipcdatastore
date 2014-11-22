@@ -19,17 +19,18 @@
 
 import os
 import sys
-import stat
 import time
+import stat
 import gzip
-import threading
-import re
 from cPickle import dump, load
+import re
+import threading
 
 if 'win' in sys.platform:
     isKodi = 'xbmc' in sys.executable.lower() or 'kodi' in sys.executable.lower()
 else:
     isKodi = True
+
 if isKodi:
     import xbmcaddon
 
@@ -47,66 +48,11 @@ IPCERROR_CONNECTION_CLOSED = 4
 IPCERROR_NONSERIALIZABLE = 5
 
 
-class DataObjectBase(object):
-    """
-    Base class for DataObject and DataObjectX
-
-    """
-    def __init__(self):
-        self.ts = None
-        self.value = None
-
-
-class DataObject(DataObjectBase):
-    """
-    Class of all objects returned by server. Includes object and timestamp.
-
-    """
-    def __init__(self, dox):
-        """
-        Requires instance of :class:`datastore.DataObjectX` during instantiation: that is the class actually stored
-        in the datastore dict.
-
-        :param dox: *Required*. See above.
-        :type dox: DataObjectX()
-
-        """
-
-        super(DataObject, self).__init__()
-        self.ts = dox.ts
-        self.value = dox.value
-
-
-class DataObjectX(DataObjectBase):
-    """
-    Class used to store objects in the datastore. Extends :class:`datastore.DataOnject` with a dict of requestors
-    """
-    def __init__(self, value, persist=False):
-        """
-        :param value: The object to be stored
-        :type value: pickleable obj
-        """
-        super(DataObjectX, self).__init__()
-        self.ts = time.time()
-        self.value = value
-        self.requestors = {}
-        self.persist = persist
-
-
 class DataIO(object):
     DEFAULT_DIR_MOD = stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH
     DEFAULT_FILE_MOD = stat.S_IRUSR | stat.S_IWUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IROTH
 
     def __init__(self):
-        pass
-
-    @staticmethod
-    def loadpersist(data_dir, datadict=None):
-        pass
-        return datadict
-
-    @staticmethod
-    def savepersist(data_dir, datadict):
         pass
 
     @staticmethod
@@ -177,6 +123,121 @@ class DataIO(object):
         match = re.search(pattern, fn)
         return match.group('author'), match.group('varname')
 
+    @staticmethod
+    def savepersist_bu(varname, author, pdir, do):
+        sfn = '@{0}~{1}.p'.format(author, varname)
+        fn = os.path.join(pdir, sfn)
+        DataIO.savepicklethread(fn, do)
+
+    @staticmethod
+    def restorepersist_bu(varname, author, pdir, odict):  # I don't think this is being used - restores one item from bu
+        sfn = '@{0}~{1}.p'.format(author, varname)
+        fn = os.path.join(pdir, sfn)
+        do = DataIO.restorepickle(fn)
+        dox = DataObjectX(do.value, persist=True)
+        dox.ts = do.ts
+        idx = (str(author), str(varname))
+        odict[idx] = dox
+        return odict
+
+    @staticmethod
+    def savepersist(dos_state, pdir, odict):
+        persist = [dos_state]
+        pdict = {}
+        for key in odict:
+            wt = odict[key]
+            if wt.persist is True:
+                do = DataObject(wt)
+                pdict[key] = do
+        persist.append(pdict)
+        fn = os.path.join(pdir, 'persist.p')
+        DataIO.savepickle(fn, persist)
+        if dos_state == DataObjects.STATE_CLOSED:
+            DataIO.cleanbus(pdir)
+
+    @staticmethod
+    def restorefrombu(pdir, odict):
+        for fn in os.listdir(pdir):
+            if fn[0] == '@':
+                idx = DataIO.idxfromfn(fn)
+                fullfn = os.path.join(pdir, fn)
+                fullfn = fullfn[0: len(fullfn)-3]
+                do = DataIO.restorepickle(fullfn)
+                if do is not None:
+                    dox = DataObjectX(do.value, persist=True)
+                    dox.ts = do.ts
+                    odict[idx] = dox
+        DataIO.cleanbus(pdir)
+        return odict
+
+    @staticmethod
+    def restorepersist(pdir, odict):
+        fn = os.path.join(pdir, 'persist.p')
+        if os.path.exists("{0}.gz".format(fn)):
+            persist = DataIO.restorepickle(fn)
+            if persist:
+                last_saved_state = persist[0]
+                pdict = persist[1]
+                if last_saved_state == DataObjects.STATE_OPENED:
+                    return DataIO.restorefrombu(pdir, odict)
+                else:
+                    for key in pdict:
+                        wt = pdict[key]
+                        dox = DataObjectX(wt.value, True)
+                        dox.ts = wt.ts
+                        odict[key] = dox
+                return odict
+            else:
+                return DataIO.restorefrombu(pdir, odict)
+        else:
+            return DataIO.restorefrombu(pdir, odict)
+
+
+class DataObjectBase(object):
+    """
+    Base class for DataObject and DataObjectX
+
+    """
+    def __init__(self):
+        self.ts = None
+        self.value = None
+
+
+class DataObject(DataObjectBase):
+    """
+    Class of all objects returned by server. Includes object and timestamp.
+
+    """
+    def __init__(self, dox):
+        """
+        Requires instance of :class:`datastore.DataObjectX` during instantiation: that is the class actually stored
+        in the datastore dict.
+
+        :param dox: *Required*. See above.
+        :type dox: DataObjectX()
+
+        """
+
+        super(DataObject, self).__init__()
+        self.ts = dox.ts
+        self.value = dox.value
+
+
+class DataObjectX(DataObjectBase):
+    """
+    Class used to store objects in the datastore. Extends :class:`datastore.DataOnject` with a dict of requestors
+    """
+    def __init__(self, value, persist=False):
+        """
+        :param value: The object to be stored
+        :type value: pickleable obj
+        """
+        super(DataObjectX, self).__init__()
+        self.ts = time.time()
+        self.value = value
+        self.requestors = {}
+        self.persist = persist
+
 
 class DataObjects(object):
     """
@@ -195,9 +256,10 @@ class DataObjects(object):
         """
         self.persist_dir = persist_dir
         self.__odict = {}
-        if persist_dir is not None:
-            self._restorepersist()
-            self._savepersist(DataObjects.STATE_OPENED)
+        if self.persist_dir is not None:
+            ret = DataIO.restorepersist(self.persist_dir, self.__odict)
+            self.__odict.update(ret)
+            DataIO.savepersist(DataObjects.STATE_OPENED, self.persist_dir, self.__odict)
         self.__state = DataObjects.STATE_OPENED
         self.autosave = True
 
@@ -228,7 +290,8 @@ class DataObjects(object):
         idx = (str(author), str(name))
         self.__odict[idx] = dox
         if persist is True and self.persist_dir is not None:
-            self._savepersist_bu(name, author)
+            do = DataObject(dox)
+            DataIO.savepersist_bu(name, author, self.persist_dir, do)
 
     def get(self, requestor, name, author, force=False):
         """
@@ -361,69 +424,12 @@ class DataObjects(object):
 
         """
         if self.persist_dir is not None and self.autosave is True:
-            self._savepersist(DataObjects.STATE_CLOSED)
+            DataIO.savepersist(DataObjects.STATE_CLOSED, self.persist_dir, self.__odict)
         self.__state = DataObjects.STATE_CLOSED
 
     def __del__(self):
         if self.__state == DataObjects.STATE_OPENED and self.autosave is True:
             self.close()
-
-    def _savepersist_bu(self, varname, author):
-        do = DataObject(self.__odict[(author, varname)])
-        sfn = '@{0}~{1}.p'.format(author, varname)
-        fn = os.path.join(self.persist_dir, sfn)
-        DataIO.savepicklethread(fn, do)
-
-    def _restorepersist_bu(self, varname, author):
-        sfn = '@{0}~{1}.p'.format(author, varname)
-        fn = os.path.join(self.persist_dir, sfn)
-        do = DataIO.restorepickle(fn)
-        dox = DataObjectX(do.value, persist=True)
-        dox.ts = do.ts
-        idx = (str(author), str(varname))
-        self.__odict[idx] = dox
-
-    def _savepersist(self, dos_state):
-        persist = [dos_state]
-        pdict = {}
-        for key in self.__odict:
-            wt = self.__odict[key]
-            if wt.persist is True:
-                do = DataObject(wt)
-                pdict[key] = do
-        persist.append(pdict)
-        fn = os.path.join(self.persist_dir, 'persist.p')
-        DataIO.savepickle(fn, persist)
-        if dos_state == DataObjects.STATE_CLOSED:
-            DataIO.cleanbus(self.persist_dir)
-
-    def _restorefrombu(self):
-        for fn in os.listdir(self.persist_dir):
-            if fn[0] == '@':
-                idx = DataIO.idxfromfn(fn)
-                fullfn = os.path.join(self.persist_dir, fn)
-                fullfn = fullfn[0: len(fullfn)-3]
-                do = DataIO.restorepickle(fullfn)
-                if do is not None:
-                    dox = DataObjectX(do.value, persist=True)
-                    dox.ts = do.ts
-                    self.__odict[idx] = dox
-        DataIO.cleanbus(self.persist_dir)
-
-    def _restorepersist(self):
-        fn = os.path.join(self.persist_dir, 'persist.p')
-        persist = DataIO.restorepickle(fn)
-        if persist:
-            last_saved_state = persist[0]
-            pdict = persist[1]
-            if last_saved_state == DataObjects.STATE_OPENED:
-                self._restorefrombu()
-            else:
-                for key in pdict:
-                    wt = pdict[key]
-                    dox = DataObjectX(wt.value, True)
-                    dox.ts = wt.ts
-                    self.__odict[key] = dox
 
     def add_persistence(self, varname, author):
         """
@@ -439,7 +445,8 @@ class DataObjects(object):
         if self.persist_dir is not None:
             idx = (author, varname)
             self.__odict[idx].persist = True
-            self._savepersist_bu(varname, author)
+            do = DataObject(self.__odict[idx])
+            DataIO.savepersist_bu(varname, author, self.persist_dir, do)
             return True
         else:
             return False

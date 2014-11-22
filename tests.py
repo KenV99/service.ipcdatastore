@@ -35,7 +35,7 @@ if isKodi:
     import xbmcvfs
     __language__ = xbmcaddon.Addon("service.ipcdatastore").getLocalizedString
 
-    # ensure aceess to required script.module. Currently an issue in Helix Beta 2
+    # ensure aceess to required script.module. Currently an issue in Helix Betas
     path_to_required_modules = os.path.join(xbmcaddon.Addon('script.module.ipc').getAddonInfo('path'), 'lib')
     if path_to_required_modules not in sys.path:
         sys.path.insert(0, path_to_required_modules)
@@ -169,34 +169,24 @@ class TestIPCClient(unittest.TestCase):
         global server
         self.client.set('persist', 3.14159, author=self.name, persist=True)
         server.stop()
-        while True:
-            if server.shutdown is True:
-                break
         server = None
         server = IPCServer(DataObjects(persist_dir=persist_dir), port=port)
         server.start()
         x = self.client.get('persist', author=self.name, requestor='tests')
         self.client.remove_persistence('persist', author=self.name)
-        self.assertEqual(x, 3.14159, msg='Failed persistence test')
+        self.assertEqual(x, 3.14159, msg='Failed persistence bulk test')
 
     def test_persistence_bu(self):
         global server
         self.client.set('persist', 3.14159, author=self.name, persist=True)
-        obj = self.client.get_exposed_object()
-        try:
-            obj.setautosave(False)
-        except Exception as e:
-            pass
+        self.client.get_exposed_object().setautosave(False)
         server.stop()
-        while True:
-            if server.shutdown is True:
-                break
         server = None
         server = IPCServer(DataObjects(persist_dir=persist_dir), port=port)
         server.start()
         x = self.client.get('persist', author=self.name, requestor='tests')
         self.client.remove_persistence('persist', author=self.name)
-        self.assertEqual(x, 3.14159, msg='Failed persistence test')
+        self.assertEqual(x, 3.14159, msg='Failed persistence backup test')
 
 
 def runtests():
