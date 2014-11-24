@@ -18,7 +18,7 @@
 #
 
 
-def start_debugger(port=51234):
+def start_debugger(port=51234, suspend=False):
     import sys
     if 'win' in sys.platform:
         isKodi = 'XBMC' in sys.executable
@@ -30,7 +30,7 @@ def start_debugger(port=51234):
     else:
         import os
         chkfileexists = os.path.isfile
-    if chkfileexists(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg'):
-        sys.path.append(r'C:\Program Files (x86)\JetBrains\PyCharm 3.1.3\pycharm-debug-py3k.egg')
+    if chkfileexists(r'C:\Program Files (x86)\JetBrains\PyCharm 4.0\pycharm-debug-py3k.egg'):
+        sys.path.append(r'C:\Program Files (x86)\JetBrains\PyCharm 4.0\pycharm-debug-py3k.egg')
         import pydevd
-        pydevd.settrace('localhost', port=port, stdoutToServer=True, stderrToServer=True, suspend=False)
+        pydevd.settrace('localhost', port=port, stdoutToServer=True, stderrToServer=True, suspend=suspend)
